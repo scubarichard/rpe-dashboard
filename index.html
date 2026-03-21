@@ -908,6 +908,8 @@ var gold="#C2A04A",green="#2a7a4a",red="#c0392b",orange="#c07a2a";
 if(view==="ceo"){
   // Velocity chart built by buildVelocityChart()
   buildVelocityChart('today');
+  // Run full metric refresh on page load
+  refreshCEOMetrics();
 
 
   var scatterData=JOBS.map(function(j){return{x:j.value,y:j.margin,label:j.client.split(" ")[0],name:j.name};});
