@@ -111,7 +111,7 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
   </div>
 
   <div class="section-header">Tier 2 &mdash; 40/15 Health Monitor</div>
-  <div class="grid grid-3">
+  <div class="grid grid-2">
     <div class="card" onclick="showModal('margin')">
       <div class="card-hint">&#x2197; Click to see margins by job</div>
       <div class="card-label">Avg Gross Margin</div>
@@ -130,12 +130,6 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
         <div class="gauge-bar"><div class="gauge-fill" style="width:100%;background:var(--green)"></div></div>
         <div class="gauge-labels"><span>0%</span><span>15%</span><span>30%</span></div>
       </div>
-    </div>
-    <div class="card" onclick="showModal('belowmargin')">
-      <div class="card-hint">&#x2197; Click to see flagged jobs</div>
-      <div class="card-label">Jobs Below 40% Margin</div>
-      <div class="card-value red">2</div>
-      <div class="card-sub">Red flag &mdash; review pricing</div>
     </div>
   </div>
 
@@ -514,4 +508,5 @@ function showModal(type){
 </script>
 </body>
 </html>
+
 
