@@ -662,26 +662,58 @@ if(view==="ceo"){
       counts.push(dayJobs.length);
       values.push(dayJobs.reduce(function(s,j){ return s+j.value; },0));
     }
-    new Chart(canvas, {
+    var velocityChart = new Chart(canvas, {
       type:'bar',
       data:{
         labels: labels,
         datasets:[{
           label:'Jobs Added',
           data: counts,
-          backgroundColor: counts.map(function(c){ return c>0 ? 'rgba(194,160,74,0.8)' : 'rgba(224,224,224,0.5)'; }),
-          borderRadius:3
+          backgroundColor: counts.map(function(c){ return c>0 ? 'rgba(194,160,74,0.85)' : 'rgba(224,224,224,0.4)'; }),
+          hoverBackgroundColor: counts.map(function(c){ return c>0 ? 'rgba(194,160,74,1)' : 'rgba(200,200,200,0.6)'; }),
+          borderRadius:3,
+          cursor:'pointer'
         }]
       },
       options:{
         responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(ctx){
-          var idx=ctx.dataIndex;
-          return ctx.raw+' job'+(ctx.raw!==1?'s':'')+' — '+fmt(values[idx]);
-        }}}},
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:function(ctx){
+            var idx=ctx.dataIndex;
+            return ctx.raw+' job'+(ctx.raw!==1?'s':'')+' — '+fmt(values[idx]);
+          }}}
+        },
         scales:{
           y:{min:0, ticks:{stepSize:1,font:{size:8}}, grid:{color:'#f5f5f5'}},
           x:{ticks:{font:{size:8}}, grid:{display:false}}
+        },
+        onClick: function(evt, elements){
+          if(!elements.length) return;
+          var idx = elements[0].index;
+          if(counts[idx] === 0) return;
+          // Rebuild the date string for this bar
+          var d = new Date(TODAY);
+          d.setDate(d.getDate() - (days - 1 - idx));
+          var ds = d.toISOString().split('T')[0];
+          var label = labels[idx];
+          var dayJobs = JOBS.filter(function(j){ return j.date_created && j.date_created.startsWith(ds); });
+          var totalVal = dayJobs.reduce(function(s,j){ return s+j.value; },0);
+          var body = '<div class="modal-summary">'
+            +'<div class="modal-stat"><div class="modal-stat-label">Date</div><div class="modal-stat-value gold">'+ds+'</div></div>'
+            +'<div class="modal-stat"><div class="modal-stat-label">Total Added</div><div class="modal-stat-value green">'+fmt(totalVal)+'</div></div>'
+            +'</div>';
+          body += jobTable(dayJobs, [
+            {label:'Job', fn:function(j){ return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>'; }},
+            {label:'Value', fn:function(j){ return '<strong>'+fmt(j.value)+'</strong>'; }},
+            {label:'Margin', fn:function(j){ return marginBadge(j.margin); }},
+            {label:'Crew', fn:function(j){ return j.crew; }},
+            {label:'Stage', fn:function(j){ return stageBadge(j.stage); }}
+          ]);
+          openModal('Jobs Added — '+ds, body);
+        },
+        onHover: function(evt, elements){
+          evt.native.target.style.cursor = elements.length && counts[elements[0].index] > 0 ? 'pointer' : 'default';
         }
       }
     });
@@ -886,6 +918,7 @@ var CHANGE_ORDERS = [
 </script>
 </body>
 </html>
+
 
 
 
