@@ -53,7 +53,7 @@ var CHANGE_ORDERS = [
 :root{--bg:#f4f4f4;--surface:#fff;--border:#e0e0e0;--gold:#C2A04A;--text:#1a1a1a;--muted:#888;--green:#2a7a4a;--red:#c0392b;--orange:#c07a2a;--green-bg:rgba(42,122,74,0.08);--red-bg:rgba(192,57,43,0.08)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100vh}
-.nav{display:flex;align-items:center;gap:4px;padding:10px 16px;background:#fff;border-bottom:3px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.nav{display:flex;align-items:center;gap:4px;padding:10px 16px;background:#fff;border-bottom:3px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,0.06);position:sticky;top:0;z-index:100}
 .nav-brand{display:flex;flex-direction:column;margin-right:20px}
 .nav-brand-name{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
 .nav-brand-sub{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-family:"DM Mono",monospace}
@@ -162,6 +162,17 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 </style>
 </head>
 <body>
+<script>
+// Detect if running inside an iFrame (GHL dashboard)
+if (window.self !== window.top) {
+  document.documentElement.style.cssText = 'height:100%;overflow:hidden';
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('iframe-mode');
+    // Remove any fixed max-widths
+    document.body.style.cssText = 'width:100%;min-height:100vh;overflow-y:auto;';
+  });
+}
+</script>
 
 <nav class="nav">
   <div class="nav-brand">
