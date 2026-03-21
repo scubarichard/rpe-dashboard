@@ -1,91 +1,370 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>:root{--bg:#f4f4f4;--surface:#ffffff;--border:#e0e0e0;--gold:#C2A04A;--gold-bg:#C2A04A;--text:#1a1a1a;--muted:#888;--green:#2a7a4a;--red:#c0392b;--orange:#c07a2a}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100vh}.nav{display:flex;align-items:center;gap:4px;padding:10px 16px;background:#fff;border-bottom:2px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,0.06)}.nav-brand{display:flex;flex-direction:column;margin-right:20px}.nav-brand-name{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}.nav-brand-sub{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-family:"DM Mono",monospace}.nav a{padding:6px 14px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}.nav a.active{color:#fff;background:var(--gold)}.view{display:none}.view.active{display:block}.dashboard{padding:16px}.section-header{background:var(--gold-bg);color:#fff;padding:8px 14px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;margin-top:16px}.section-header:first-child{margin-top:0}.grid{display:grid;gap:10px;margin-bottom:0}.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr 1fr 1fr}.grid-4{grid-template-columns:1fr 1fr 1fr 1fr}.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05)}.card-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:8px}.card-value{font-size:32px;font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--text)}.card-value.gold{color:var(--gold)}.card-value.green{color:var(--green)}.card-value.red{color:var(--red)}.card-value.orange{color:var(--orange)}.card-sub{font-size:10px;color:var(--muted);margin-top:5px;font-family:"DM Mono",monospace}.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}.stat-row:last-child{border-bottom:none}.stat-label{font-size:12px;color:var(--muted)}.stat-value{font-size:14px;font-weight:600;font-family:"DM Mono",monospace}.stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}.stat-value.orange{color:var(--orange)}.ts{font-size:9px;color:var(--muted);font-family:"DM Mono",monospace;padding:12px 0 2px;text-align:right}</style></head><body>
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f4f4f4;--surface:#fff;--border:#e0e0e0;--gold:#C2A04A;--text:#1a1a1a;--muted:#888;--green:#2a7a4a;--red:#c0392b;--orange:#c07a2a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100vh}
+.nav{display:flex;align-items:center;gap:4px;padding:10px 16px;background:#fff;border-bottom:3px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.nav-brand{display:flex;flex-direction:column;margin-right:20px}
+.nav-brand-name{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
+.nav-brand-sub{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-family:"DM Mono",monospace}
+.nav a{padding:6px 14px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.nav a.active{color:#fff;background:var(--gold)}
+.view{display:none}.view.active{display:block}
+.dashboard{padding:16px}
+.section-header{background:var(--gold);color:#fff;padding:8px 14px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;margin-top:16px}
+.section-header:first-child{margin-top:0}
+.grid{display:grid;gap:10px;margin-bottom:0}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.card-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:8px}
+.card-value{font-size:32px;font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--text)}
+.card-value.gold{color:var(--gold)}
+.card-value.green{color:var(--green)}
+.card-value.red{color:var(--red)}
+.card-value.orange{color:var(--orange)}
+.card-sub{font-size:10px;color:var(--muted);margin-top:5px;font-family:"DM Mono",monospace}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-value{font-size:14px;font-weight:600;font-family:"DM Mono",monospace}
+.stat-value.green{color:var(--green)}
+.stat-value.red{color:var(--red)}
+.stat-value.orange{color:var(--orange)}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.chart-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:12px}
+.gauge-wrap{margin-top:8px}
+.gauge-bar{height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;margin-top:4px}
+.gauge-fill{height:100%;border-radius:4px}
+.gauge-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-family:"DM Mono",monospace;margin-top:3px}
+.ts{font-size:9px;color:var(--muted);font-family:"DM Mono",monospace;padding:12px 0 2px;text-align:right}
+</style>
+</head>
+<body>
 <nav class="nav">
-  <div class="nav-brand"><div class="nav-brand-name">RPE Systems</div><div class="nav-brand-sub">Operations Engine</div></div>
+  <div class="nav-brand">
+    <div class="nav-brand-name">RPE Systems</div>
+    <div class="nav-brand-sub">Operations Engine</div>
+  </div>
   <a href="?view=ceo" id="tab-ceo">CEO</a>
   <a href="?view=gm" id="tab-gm">GM</a>
   <a href="?view=cfo" id="tab-cfo">CFO</a>
 </nav>
 
+<!-- CEO VIEW -->
 <div id="view-ceo" class="view">
-  <div class="dashboard">
-    <div class="section-header">Tier 1 &mdash; Peace of Mind</div>
-    <div class="grid grid-2">
-      <div class="card"><div class="card-label">Total Pipeline Value</div><div class="card-value gold">$154,500.00</div><div class="card-sub">All active jobs</div></div>
-      <div class="card"><div class="card-label">Net Profit</div><div class="card-value green">$25,475.00</div><div class="card-sub">After labor costs</div></div>
+<div class="dashboard">
+  <div class="section-header">Tier 1 &mdash; Peace of Mind</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-label">Total Pipeline Value</div>
+      <div class="card-value gold">$154,500</div>
+      <div class="card-sub">All active jobs combined</div>
     </div>
-    <div class="section-header">Tier 2 &mdash; 40/15 Health Monitor</div>
-    <div class="grid grid-3">
-      <div class="card"><div class="card-label">Avg Gross Margin</div><div class="card-value green">40.1%</div><div class="card-sub">Target: 40% min</div></div>
-      <div class="card"><div class="card-label">Labor Cap</div><div class="card-value green">66%</div><div class="card-sub">Target: 15% max</div></div>
-      <div class="card"><div class="card-label">Below 40% Margin</div><div class="card-value red">2</div><div class="card-sub">Jobs need review</div></div>
+    <div class="card">
+      <div class="card-label">Net Profit</div>
+      <div class="card-value green">$25,475</div>
+      <div class="card-sub">After all labor costs</div>
     </div>
-    <div class="section-header">Tier 3 &mdash; Fulfillment Watchdog</div>
-    <div class="grid grid-4">
-      <div class="card"><div class="card-label">Jobs Open</div><div class="card-value">9</div><div class="card-sub">In pipeline</div></div>
-      <div class="card"><div class="card-label">Jobs Won</div><div class="card-value green">1</div><div class="card-sub">Closed</div></div>
-      <div class="card"><div class="card-label">Stuck Jobs</div><div class="card-value orange">9</div><div class="card-sub">3+ days idle</div></div>
-      <div class="card"><div class="card-label">Enterprise 3x</div><div class="card-value gold">$76,425.00</div><div class="card-sub">Business value</div></div>
-    </div>
-    <div class="ts">Updated daily at 6:10 AM ET</div>
   </div>
+
+  <div class="section-header">Tier 2 &mdash; 40/15 Health Monitor</div>
+  <div class="grid grid-3">
+    <div class="card">
+      <div class="card-label">Avg Gross Margin</div>
+      <div class="card-value green">40.1%</div>
+      <div class="card-sub">Target: 40% minimum</div>
+      <div class="gauge-wrap">
+        <div class="gauge-bar"><div class="gauge-fill" style="width:67%;background:#2a7a4a"></div></div>
+        <div class="gauge-labels"><span>0%</span><span>40% target</span><span>60%</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Labor Cap</div>
+      <div class="card-value green">66%</div>
+      <div class="card-sub">Target: 15% max of revenue</div>
+      <div class="gauge-wrap">
+        <div class="gauge-bar"><div class="gauge-fill" style="width:100%;background:#2a7a4a"></div></div>
+        <div class="gauge-labels"><span>0%</span><span>15% cap</span><span>30%</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Jobs Below 40% Margin</div>
+      <div class="card-value red">2</div>
+      <div class="card-sub">Red flag — review pricing</div>
+    </div>
+  </div>
+
+  <div class="section-header">Tier 3 &mdash; Fulfillment Watchdog</div>
+  <div class="grid grid-2">
+    <div class="chart-card">
+      <div class="chart-title">Pipeline by Stage</div>
+      <canvas id="ceo-stage-chart" height="160"></canvas>
+    </div>
+    <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="card">
+        <div class="card-label">Jobs Open</div>
+        <div class="card-value">9</div>
+        <div class="card-sub">In active pipeline</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Jobs Won</div>
+        <div class="card-value green">1</div>
+        <div class="card-sub">Closed this year</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Stuck Jobs</div>
+        <div class="card-value orange">9</div>
+        <div class="card-sub">Over 3 days idle</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Enterprise 3x</div>
+        <div class="card-value gold">$76,425</div>
+        <div class="card-sub">Business value</div>
+      </div>
+    </div>
+  </div>
+  <div class="ts">Updated daily at 6:10 AM ET</div>
+</div>
 </div>
 
+<!-- GM VIEW -->
 <div id="view-gm" class="view">
-  <div class="dashboard">
-    <div class="section-header">Tier 1 &mdash; Peace of Mind</div>
-    <div class="grid grid-2">
-      <div class="card"><div class="card-label">Total Pipeline Value</div><div class="card-value gold">$154,500.00</div><div class="card-sub">All active jobs combined</div></div>
-      <div class="card"><div class="card-label">Stuck Jobs (3+ Days)</div><div class="card-value orange">9</div><div class="card-sub">Needs manager attention</div></div>
+<div class="dashboard">
+  <div class="section-header">Tier 1 &mdash; Peace of Mind</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-label">Total Pipeline Value</div>
+      <div class="card-value gold">$154,500</div>
+      <div class="card-sub">All active jobs combined</div>
     </div>
-    <div class="section-header">Tier 2 &mdash; 40/15 Health Monitor</div>
-    <div class="grid grid-2">
-      <div class="card"><div class="card-label">Avg Gross Margin</div><div class="card-value green">40.1%</div><div class="card-sub">Target: 40% minimum</div></div>
-      <div class="card"><div class="card-label">Labor Cap Tracker</div><div class="card-value green">66%</div><div class="card-sub">Target: 15% max of revenue</div></div>
+    <div class="card">
+      <div class="card-label">Stuck Jobs (3+ Days)</div>
+      <div class="card-value orange">9</div>
+      <div class="card-sub">Needs manager attention</div>
     </div>
-    <div class="section-header">Tier 3 &mdash; Fulfillment Watchdog</div>
-    <div class="grid grid-2">
-      <div class="card"><div class="card-label">Job Status</div>
-        <div class="stat-row"><span class="stat-label">Jobs Open</span><span class="stat-value">9</span></div>
-        <div class="stat-row"><span class="stat-label">Jobs Won</span><span class="stat-value green">1</span></div>
-        <div class="stat-row"><span class="stat-label">Below 40% Margin</span><span class="stat-value red">2</span></div>
-      </div>
-      <div class="card"><div class="card-label">Red Flag Alert</div>
-        <div class="stat-row"><span class="stat-label">Jobs Below Margin</span><span class="stat-value red">2</span></div>
-        <div class="stat-row"><span class="stat-label">Stuck in Pipeline</span><span class="stat-value orange">9</span></div>
-      </div>
-    </div>
-    <div class="ts">Updated daily at 6:10 AM ET</div>
   </div>
+
+  <div class="section-header">Tier 2 &mdash; 40/15 Health Monitor</div>
+  <div class="grid grid-2">
+    <div class="chart-card">
+      <div class="chart-title">Margin Health by Job</div>
+      <canvas id="gm-margin-chart" height="160"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-label">Labor Cap Tracker</div>
+      <div class="card-value green">66%</div>
+      <div class="card-sub">Target: 15% max of revenue</div>
+      <div class="gauge-wrap" style="margin-top:12px">
+        <div class="gauge-bar" style="height:12px"><div class="gauge-fill" style="width:100%;background:#2a7a4a"></div></div>
+        <div class="gauge-labels"><span>0%</span><span>15% cap</span><span>30%</span></div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="stat-row"><span class="stat-label">Labor Budget</span><span class="stat-value">$57,258</span></div>
+        <div class="stat-row"><span class="stat-label">Crew Payout</span><span class="stat-value">$37,855</span></div>
+        <div class="stat-row"><span class="stat-label">Variance</span><span class="stat-value green">$19,403</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">Tier 3 &mdash; Fulfillment Watchdog</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-label">Job Status Breakdown</div>
+      <div class="stat-row"><span class="stat-label">Jobs Open (Pipeline)</span><span class="stat-value">9</span></div>
+      <div class="stat-row"><span class="stat-label">Jobs Won (Closed)</span><span class="stat-value green">1</span></div>
+      <div class="stat-row"><span class="stat-label">Stuck 3+ Days</span><span class="stat-value orange">9</span></div>
+      <div class="stat-row"><span class="stat-label">Below 40% Margin</span><span class="stat-value red">2</span></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Jobs Open vs Won</div>
+      <canvas id="gm-jobs-chart" height="160"></canvas>
+    </div>
+  </div>
+  <div class="ts">Updated daily at 6:10 AM ET</div>
+</div>
 </div>
 
+<!-- CFO VIEW -->
 <div id="view-cfo" class="view">
-  <div class="dashboard">
-    <div class="section-header">Tier 1 &mdash; Financial Pulse</div>
-    <div class="grid grid-2">
-      <div class="card"><div class="card-label">Total Pipeline Value</div><div class="card-value gold">$154,500.00</div><div class="card-sub">Active revenue potential</div></div>
-      <div class="card"><div class="card-label">Net Profit</div><div class="card-value green">$25,475.00</div><div class="card-sub">After all labor costs</div></div>
+<div class="dashboard">
+  <div class="section-header">Tier 1 &mdash; Financial Pulse</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-label">Total Pipeline Value</div>
+      <div class="card-value gold">$154,500</div>
+      <div class="card-sub">Active revenue potential</div>
     </div>
-    <div class="section-header">Tier 2 &mdash; Labor and Margin Control</div>
-    <div class="grid grid-2">
-      <div class="card"><div class="card-label">Total Labor Budget</div><div class="card-value">$57,258.00</div><div class="card-sub">Committed across all jobs</div></div>
-      <div class="card"><div class="card-label">Total Labor Cost</div><div class="card-value">$37,855.00</div><div class="card-sub">Crew payout to date</div></div>
+    <div class="card">
+      <div class="card-label">Net Profit</div>
+      <div class="card-value green">$25,475</div>
+      <div class="card-sub">After all labor costs</div>
     </div>
-    <div class="grid grid-2" style="margin-top:10px">
-      <div class="card"><div class="card-label">Labor Variance</div><div class="card-value green">$19,403.00</div><div class="card-sub">Budget minus cost</div></div>
-      <div class="card"><div class="card-label">Avg Gross Margin</div><div class="card-value green">40.1%</div><div class="card-sub">Target: 40% plus</div></div>
-    </div>
-    <div class="section-header">Tier 3 &mdash; Enterprise Value</div>
-    <div class="grid grid-2">
-      <div class="card"><div class="card-label">Enterprise Value 3x</div><div class="card-value gold">$76,425.00</div><div class="card-sub">Conservative multiple</div></div>
-      <div class="card"><div class="card-label">Enterprise Value 5x</div><div class="card-value gold">$127,375.00</div><div class="card-sub">Growth multiple</div></div>
-    </div>
-    <div class="ts">Updated daily at 6:10 AM ET</div>
   </div>
+
+  <div class="section-header">Tier 2 &mdash; Labor and Margin Control</div>
+  <div class="grid grid-2">
+    <div class="chart-card">
+      <div class="chart-title">Labor Budget vs Cost vs Variance</div>
+      <canvas id="cfo-labor-chart" height="180"></canvas>
+    </div>
+    <div>
+      <div class="grid grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="card">
+          <div class="card-label">Total Labor Budget</div>
+          <div class="card-value" style="font-size:22px">$57,258</div>
+          <div class="card-sub">Committed</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total Labor Cost</div>
+          <div class="card-value" style="font-size:22px">$37,855</div>
+          <div class="card-sub">Paid out</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Labor Variance</div>
+          <div class="card-value green" style="font-size:22px">$19,403</div>
+          <div class="card-sub">Under budget</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Avg Gross Margin</div>
+          <div class="card-value green" style="font-size:22px">40.1%</div>
+          <div class="card-sub">Target: 40%+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">Tier 3 &mdash; Enterprise Value</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-label">Enterprise Value 3x</div>
+      <div class="card-value gold">$76,425</div>
+      <div class="card-sub">Conservative multiple</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Enterprise Value 5x</div>
+      <div class="card-value gold">$127,375</div>
+      <div class="card-sub">Growth multiple</div>
+    </div>
+  </div>
+  <div class="ts">Updated daily at 6:10 AM ET</div>
+</div>
 </div>
 
 <script>
+// Show correct view
 var view = new URLSearchParams(location.search).get('view') || 'ceo';
 document.getElementById('view-' + view).className = 'view active';
 document.getElementById('tab-' + view).className = 'active';
+
+var gold = '#C2A04A';
+var green = '#2a7a4a';
+var red = '#c0392b';
+var orange = '#c07a2a';
+var lightGold = 'rgba(194,160,74,0.15)';
+
+// CEO Stage Chart
+if (view === 'ceo') {
+  new Chart(document.getElementById('ceo-stage-chart'), {
+    type: 'bar',
+    data: {
+      labels: ['New Lead','Contacted','Site Visit','Estimate','Contract','Deposit','Production','Invoice'],
+      datasets: [{
+        label: 'Jobs',
+        data: [2,1,1,1,1,1,1,1],
+        backgroundColor: gold,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { stepSize: 1 }, grid: { color: '#f0f0f0' } },
+        x: { ticks: { font: { size: 9 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// GM Charts
+if (view === 'gm') {
+  new Chart(document.getElementById('gm-margin-chart'), {
+    type: 'bar',
+    data: {
+      labels: ['Chipper J','Wilkins','Killer M','Monica B','Andre B','Foxworthy','Roberts','Usher R','Ludacris','Tyler P'],
+      datasets: [{
+        label: 'Margin %',
+        data: [45,42,40,40,30,45,30,42,45,42],
+        backgroundColor: [green,green,green,green,red,green,red,green,green,green],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        annotation: {}
+      },
+      scales: {
+        y: {
+          min: 0, max: 60,
+          ticks: { callback: function(v){ return v+'%'; } },
+          grid: { color: '#f0f0f0' }
+        },
+        x: { ticks: { font: { size: 8 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('gm-jobs-chart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Open','Won','Stuck'],
+      datasets: [{
+        data: [9,1,9],
+        backgroundColor: [gold, green, orange],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 10 } } }
+      },
+      cutout: '65%'
+    }
+  });
+}
+
+// CFO Labor Chart
+if (view === 'cfo') {
+  new Chart(document.getElementById('cfo-labor-chart'), {
+    type: 'bar',
+    data: {
+      labels: ['Labor Budget','Labor Cost','Variance'],
+      datasets: [{
+        data: [57258, 37855, 19403],
+        backgroundColor: [gold, orange, green],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          ticks: { callback: function(v){ return '$'+Math.round(v/1000)+'K'; } },
+          grid: { color: '#f0f0f0' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
 </script>
-</body></html>
+</body>
+</html>
