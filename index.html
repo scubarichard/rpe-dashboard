@@ -4,7 +4,51 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+// ── Change Orders (from ClickUp via Google Sheet sync) ──
+var CHANGE_ORDERS = [
+  {
+    task_id: "86e0ccx58",
+    job_name: "Wilkins Game Room - Subfloor Repair",
+    opportunity_id: "psPkH0gBqYdZ0ZJ3R5lR",
+    contract_value: 1200,
+    status: "complete",
+    crew_assigned: "",
+    description: "Subfloor repair required before LVP install",
+    date_created: "2026-03-15",
+    date_updated: "2026-03-15",
+    url: "https://app.clickup.com/t/86e0ccx58"
+  }
+];
+
+(function buildCOTable(){
+  var tbody = document.getElementById("gm-co-body");
+  if (!tbody) return;
+  if (!CHANGE_ORDERS.length) {
+    tbody.innerHTML = "<tr><td colspan='6' style='padding:12px;color:var(--green);font-size:12px;text-align:center'>&#x2714; No change orders logged</td></tr>";
+    return;
+  }
+  var totalValue = CHANGE_ORDERS.reduce(function(s,co){return s + (co.contract_value||0);}, 0);
+  
+  tbody.innerHTML = CHANGE_ORDERS.map(function(co){
+    var statusClass = co.status === "complete" ? "green" : co.status === "labor alert" ? "red" : "gold";
+    var statusLabel = co.status === "complete" ? "Approved" : co.status === "labor alert" ? "Labor Alert" : "Pending";
+    // Find matching job name from JOBS array
+    var job = JOBS.find(function(j){return j.id === co.opportunity_id;});
+    var displayJob = job ? job.client + " — " + job.name : co.job_name;
+    return "<tr>" +
+      "<td><span style='font-size:11px;color:var(--muted)'>" + displayJob + "</span></td>" +
+      "<td><strong style='font-size:12px'>" + co.job_name + "</strong>" + (co.description ? "<br><span style='font-size:10px;color:var(--muted)'>" + co.description + "</span>" : "") + "</td>" +
+      "<td><strong style='color:var(--gold)'>" + fmt(co.contract_value) + "</strong></td>" +
+      "<td><span class='badge " + statusClass + "'>" + statusLabel + "</span></td>" +
+      "<td style='font-size:11px;color:var(--muted)'>" + co.date_created + "</td>" +
+      "<td><a href='" + co.url + "' target='_blank' style='font-size:10px;color:var(--gold);text-decoration:none;font-family:\"DM Mono\",monospace'>&#x2197; View</a></td>" +
+    "</tr>";
+  }).join("") +
+  "<tr style='background:#f8f8f8'><td colspan='2' style='font-size:10px;font-family:\"DM Mono\",monospace;color:var(--muted);padding:8px 10px'>TOTAL SCOPE ADDITIONS</td><td><strong style='color:var(--red)'>" + fmt(totalValue) + "</strong></td><td colspan='3'></td></tr>";
+})();
+
+</script>
 <style>
 :root{--bg:#f4f4f4;--surface:#fff;--border:#e0e0e0;--gold:#C2A04A;--text:#1a1a1a;--muted:#888;--green:#2a7a4a;--red:#c0392b;--orange:#c07a2a;--green-bg:rgba(42,122,74,0.08);--red-bg:rgba(192,57,43,0.08)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -325,12 +369,21 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
   </div>
 
   <!-- Change Order Log -->
-  <div class="chart-card placeholder" style="margin-bottom:0">
-    <div class="placeholder-badge">&#x23F3; Awaiting Live Data</div>
-    <div class="chart-title">Change Order Log &mdash; Scope Creep Tracker</div>
-    <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">
-      Needs change order field in GHL / ClickUp to track scope additions
-    </div>
+  <div class="chart-card no-click" style="margin-bottom:0">
+    <div class="chart-title">&#x1F4CB; Change Order Log &mdash; Scope Creep Tracker <span style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:8px">Source: ClickUp &rarr; syncs every 6hrs</span></div>
+    <table class="flag-table" id="gm-co-table">
+      <thead>
+        <tr>
+          <th>Job</th>
+          <th>Change Order</th>
+          <th>Contract Value</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>ClickUp</th>
+        </tr>
+      </thead>
+      <tbody id="gm-co-body"></tbody>
+    </table>
   </div>
 
   <!-- TIER 3: Installer Accountability Gate -->
@@ -741,6 +794,51 @@ function showModal(type){
   }
   openModal(title,body);
 }
+
+// ── Change Orders (from ClickUp via Google Sheet sync) ──
+var CHANGE_ORDERS = [
+  {
+    task_id: "86e0ccx58",
+    job_name: "Wilkins Game Room - Subfloor Repair",
+    opportunity_id: "psPkH0gBqYdZ0ZJ3R5lR",
+    contract_value: 1200,
+    status: "complete",
+    crew_assigned: "",
+    description: "Subfloor repair required before LVP install",
+    date_created: "2026-03-15",
+    date_updated: "2026-03-15",
+    url: "https://app.clickup.com/t/86e0ccx58"
+  }
+];
+
+(function buildCOTable(){
+  var tbody = document.getElementById("gm-co-body");
+  if (!tbody) return;
+  if (!CHANGE_ORDERS.length) {
+    tbody.innerHTML = "<tr><td colspan='6' style='padding:12px;color:var(--green);font-size:12px;text-align:center'>&#x2714; No change orders logged</td></tr>";
+    return;
+  }
+  var totalValue = CHANGE_ORDERS.reduce(function(s,co){return s + (co.contract_value||0);}, 0);
+  
+  tbody.innerHTML = CHANGE_ORDERS.map(function(co){
+    var statusClass = co.status === "complete" ? "green" : co.status === "labor alert" ? "red" : "gold";
+    var statusLabel = co.status === "complete" ? "Approved" : co.status === "labor alert" ? "Labor Alert" : "Pending";
+    // Find matching job name from JOBS array
+    var job = JOBS.find(function(j){return j.id === co.opportunity_id;});
+    var displayJob = job ? job.client + " — " + job.name : co.job_name;
+    return "<tr>" +
+      "<td><span style='font-size:11px;color:var(--muted)'>" + displayJob + "</span></td>" +
+      "<td><strong style='font-size:12px'>" + co.job_name + "</strong>" + (co.description ? "<br><span style='font-size:10px;color:var(--muted)'>" + co.description + "</span>" : "") + "</td>" +
+      "<td><strong style='color:var(--gold)'>" + fmt(co.contract_value) + "</strong></td>" +
+      "<td><span class='badge " + statusClass + "'>" + statusLabel + "</span></td>" +
+      "<td style='font-size:11px;color:var(--muted)'>" + co.date_created + "</td>" +
+      "<td><a href='" + co.url + "' target='_blank' style='font-size:10px;color:var(--gold);text-decoration:none;font-family:\"DM Mono\",monospace'>&#x2197; View</a></td>" +
+    "</tr>";
+  }).join("") +
+  "<tr style='background:#f8f8f8'><td colspan='2' style='font-size:10px;font-family:\"DM Mono\",monospace;color:var(--muted);padding:8px 10px'>TOTAL SCOPE ADDITIONS</td><td><strong style='color:var(--red)'>" + fmt(totalValue) + "</strong></td><td colspan='3'></td></tr>";
+})();
+
 </script>
 </body>
 </html>
+
