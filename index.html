@@ -694,6 +694,30 @@ function refreshCEOMetrics() {
   }
   buildVelocityChart(period);
 
+  // ── RPE Gauge ──
+  var HEADCOUNT = 5; // hardcoded — update when GHL PIT token has Users scope
+  var monthStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+  var monthJobs = JOBS.filter(function(j){
+    var d = new Date(j.date_created || j.last_updated);
+    return d >= monthStart && d <= TODAY;
+  });
+  var monthlyRevenue = monthJobs.reduce(function(s,j){ return s+j.value; },0);
+  if (!monthlyRevenue) monthlyRevenue = JOBS.reduce(function(s,j){ return s+j.value; },0);
+  var rpeVal = Math.round(monthlyRevenue / HEADCOUNT);
+  var gaugeEl = document.getElementById('rpe-gauge-value');
+  var gaugeSub = document.getElementById('rpe-gauge-sub');
+  var gaugeFill = document.getElementById('rpe-gauge-fill');
+  if (gaugeEl) {
+    gaugeEl.textContent = fmt(rpeVal);
+    gaugeEl.style.color = rpeVal >= 40000 ? 'var(--green)' : rpeVal >= 25000 ? 'var(--orange)' : 'var(--red)';
+    if (gaugeSub) gaugeSub.textContent = fmt(monthlyRevenue) + ' pipeline ÷ ' + HEADCOUNT + ' employees — target $40K+/mo';
+    if (gaugeFill) {
+      var pct = Math.min(100, Math.round(rpeVal / 80000 * 100));
+      gaugeFill.style.width = pct + '%';
+      gaugeFill.style.background = rpeVal >= 40000 ? 'var(--green)' : rpeVal >= 25000 ? 'var(--orange)' : 'var(--red)';
+    }
+  }
+
   // ── Pending card ──
   var pendingVal = document.getElementById('ceo-pending-val');
   var pendingSub = document.getElementById('ceo-pending-sub');
