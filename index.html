@@ -6,7 +6,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#f4f4f4;--surface:#fff;--border:#e0e0e0;--gold:#C2A04A;--text:#1a1a1a;--muted:#888;--green:#2a7a4a;--red:#c0392b;--orange:#c07a2a}
+:root{--bg:#f4f4f4;--surface:#fff;--border:#e0e0e0;--gold:#C2A04A;--text:#1a1a1a;--muted:#888;--green:#2a7a4a;--red:#c0392b;--orange:#c07a2a;--green-bg:rgba(42,122,74,0.08);--red-bg:rgba(192,57,43,0.08)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100vh}
 .nav{display:flex;align-items:center;gap:4px;padding:10px 16px;background:#fff;border-bottom:3px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
@@ -19,35 +19,57 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 .dashboard{padding:16px}
 .section-header{background:var(--gold);color:#fff;padding:8px 14px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;margin-top:16px}
 .section-header:first-child{margin-top:0}
-.grid{display:grid;gap:10px;margin-bottom:0}
+.grid{display:grid;gap:10px}
 .grid-2{grid-template-columns:1fr 1fr}
 .grid-3{grid-template-columns:1fr 1fr 1fr}
 .grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
-.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05);cursor:pointer;transition:box-shadow .15s,transform .1s}
+.card:hover{box-shadow:0 4px 16px rgba(194,160,74,0.2);transform:translateY(-1px)}
+.card.no-click{cursor:default}.card.no-click:hover{box-shadow:0 1px 4px rgba(0,0,0,0.05);transform:none}
 .card-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:8px}
+.card-hint{font-size:9px;color:var(--gold);font-family:"DM Mono",monospace;margin-bottom:6px;opacity:0.8}
 .card-value{font-size:32px;font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--text)}
-.card-value.gold{color:var(--gold)}
-.card-value.green{color:var(--green)}
-.card-value.red{color:var(--red)}
-.card-value.orange{color:var(--orange)}
+.card-value.gold{color:var(--gold)}.card-value.green{color:var(--green)}.card-value.red{color:var(--red)}.card-value.orange{color:var(--orange)}
 .card-sub{font-size:10px;color:var(--muted);margin-top:5px;font-family:"DM Mono",monospace}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.chart-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:12px}
 .stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
 .stat-row:last-child{border-bottom:none}
 .stat-label{font-size:12px;color:var(--muted)}
 .stat-value{font-size:14px;font-weight:600;font-family:"DM Mono",monospace}
-.stat-value.green{color:var(--green)}
-.stat-value.red{color:var(--red)}
-.stat-value.orange{color:var(--orange)}
-.chart-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
-.chart-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:12px}
-.gauge-wrap{margin-top:8px}
+.stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}.stat-value.orange{color:var(--orange)}
+.gauge-wrap{margin-top:10px}
 .gauge-bar{height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;margin-top:4px}
 .gauge-fill{height:100%;border-radius:4px}
 .gauge-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-family:"DM Mono",monospace;margin-top:3px}
 .ts{font-size:9px;color:var(--muted);font-family:"DM Mono",monospace;padding:12px 0 2px;text-align:right}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:flex-end}
+.modal{background:#fff;width:480px;height:100vh;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.15);animation:slideIn .2s ease}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.modal-header{background:var(--gold);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1}
+.modal-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.modal-close{background:rgba(255,255,255,0.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:rgba(255,255,255,0.35)}
+.modal-body{padding:16px}
+.modal-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.modal-stat{background:#f8f8f8;border-radius:6px;padding:10px 12px}
+.modal-stat-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:4px}
+.modal-stat-value{font-size:18px;font-weight:700;color:var(--text)}
+.modal-stat-value.gold{color:var(--gold)}.modal-stat-value.green{color:var(--green)}.modal-stat-value.red{color:var(--red)}.modal-stat-value.orange{color:var(--orange)}
+.job-table{width:100%;border-collapse:collapse;font-size:12px}
+.job-table th{text-align:left;padding:8px 10px;background:#f8f8f8;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;border-bottom:2px solid var(--border)}
+.job-table td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top}
+.job-table tr:last-child td{border-bottom:none}
+.job-table tr:hover td{background:#fafaf8}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.badge.green{background:var(--green-bg);color:var(--green)}.badge.red{background:var(--red-bg);color:var(--red)}.badge.orange{background:rgba(192,122,42,0.08);color:var(--orange)}.badge.gold{background:rgba(194,160,74,0.1);color:var(--gold)}
 </style>
 </head>
 <body>
+
 <nav class="nav">
   <div class="nav-brand">
     <div class="nav-brand-name">RPE Systems</div>
@@ -58,17 +80,30 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
   <a href="?view=cfo" id="tab-cfo">CFO</a>
 </nav>
 
+<!-- MODAL DRAWER -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Detail</span>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
 <!-- CEO VIEW -->
 <div id="view-ceo" class="view">
 <div class="dashboard">
   <div class="section-header">Tier 1 &mdash; Peace of Mind</div>
   <div class="grid grid-2">
-    <div class="card">
+    <div class="card" onclick="showModal('pipeline')">
+      <div class="card-hint">&#x2197; Click to see all jobs</div>
       <div class="card-label">Total Pipeline Value</div>
       <div class="card-value gold">$154,500</div>
       <div class="card-sub">All active jobs combined</div>
     </div>
-    <div class="card">
+    <div class="card" onclick="showModal('netprofit')">
+      <div class="card-hint">&#x2197; Click for profit breakdown</div>
       <div class="card-label">Net Profit</div>
       <div class="card-value green">$25,475</div>
       <div class="card-sub">After all labor costs</div>
@@ -77,54 +112,59 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 
   <div class="section-header">Tier 2 &mdash; 40/15 Health Monitor</div>
   <div class="grid grid-3">
-    <div class="card">
+    <div class="card" onclick="showModal('margin')">
+      <div class="card-hint">&#x2197; Click to see margins by job</div>
       <div class="card-label">Avg Gross Margin</div>
       <div class="card-value green">40.1%</div>
       <div class="card-sub">Target: 40% minimum</div>
       <div class="gauge-wrap">
-        <div class="gauge-bar"><div class="gauge-fill" style="width:67%;background:#2a7a4a"></div></div>
-        <div class="gauge-labels"><span>0%</span><span>40% target</span><span>60%</span></div>
+        <div class="gauge-bar"><div class="gauge-fill" style="width:67%;background:var(--green)"></div></div>
+        <div class="gauge-labels"><span>0%</span><span>40%</span><span>60%</span></div>
       </div>
     </div>
-    <div class="card">
+    <div class="card no-click">
       <div class="card-label">Labor Cap</div>
       <div class="card-value green">66%</div>
       <div class="card-sub">Target: 15% max of revenue</div>
       <div class="gauge-wrap">
-        <div class="gauge-bar"><div class="gauge-fill" style="width:100%;background:#2a7a4a"></div></div>
-        <div class="gauge-labels"><span>0%</span><span>15% cap</span><span>30%</span></div>
+        <div class="gauge-bar"><div class="gauge-fill" style="width:100%;background:var(--green)"></div></div>
+        <div class="gauge-labels"><span>0%</span><span>15%</span><span>30%</span></div>
       </div>
     </div>
-    <div class="card">
+    <div class="card" onclick="showModal('belowmargin')">
+      <div class="card-hint">&#x2197; Click to see flagged jobs</div>
       <div class="card-label">Jobs Below 40% Margin</div>
       <div class="card-value red">2</div>
-      <div class="card-sub">Red flag — review pricing</div>
+      <div class="card-sub">Red flag &mdash; review pricing</div>
     </div>
   </div>
 
   <div class="section-header">Tier 3 &mdash; Fulfillment Watchdog</div>
   <div class="grid grid-2">
-    <div class="chart-card">
-      <div class="chart-title">Pipeline by Stage</div>
-      <canvas id="ceo-stage-chart" height="160"></canvas>
+    <div class="chart-card no-click">
+      <div class="chart-title">Margin % by Job</div>
+      <canvas id="ceo-margin-chart" height="180"></canvas>
     </div>
-    <div class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="card">
+    <div class="grid grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="card" onclick="showModal('open')">
+        <div class="card-hint">&#x2197; See all jobs</div>
         <div class="card-label">Jobs Open</div>
         <div class="card-value">9</div>
         <div class="card-sub">In active pipeline</div>
       </div>
-      <div class="card">
+      <div class="card" onclick="showModal('won')">
+        <div class="card-hint">&#x2197; See won jobs</div>
         <div class="card-label">Jobs Won</div>
         <div class="card-value green">1</div>
         <div class="card-sub">Closed this year</div>
       </div>
-      <div class="card">
+      <div class="card" onclick="showModal('stuck')">
+        <div class="card-hint">&#x2197; See stuck jobs</div>
         <div class="card-label">Stuck Jobs</div>
         <div class="card-value orange">9</div>
         <div class="card-sub">Over 3 days idle</div>
       </div>
-      <div class="card">
+      <div class="card no-click">
         <div class="card-label">Enterprise 3x</div>
         <div class="card-value gold">$76,425</div>
         <div class="card-sub">Business value</div>
@@ -140,12 +180,14 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 <div class="dashboard">
   <div class="section-header">Tier 1 &mdash; Peace of Mind</div>
   <div class="grid grid-2">
-    <div class="card">
+    <div class="card" onclick="showModal('pipeline')">
+      <div class="card-hint">&#x2197; Click to see all jobs</div>
       <div class="card-label">Total Pipeline Value</div>
       <div class="card-value gold">$154,500</div>
       <div class="card-sub">All active jobs combined</div>
     </div>
-    <div class="card">
+    <div class="card" onclick="showModal('stuck')">
+      <div class="card-hint">&#x2197; Click to see stuck jobs</div>
       <div class="card-label">Stuck Jobs (3+ Days)</div>
       <div class="card-value orange">9</div>
       <div class="card-sub">Needs manager attention</div>
@@ -154,19 +196,21 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 
   <div class="section-header">Tier 2 &mdash; 40/15 Health Monitor</div>
   <div class="grid grid-2">
-    <div class="chart-card">
-      <div class="chart-title">Margin Health by Job</div>
-      <canvas id="gm-margin-chart" height="160"></canvas>
+    <div class="card" onclick="showModal('margin')">
+      <div class="card-hint">&#x2197; Click to see margin by job</div>
+      <div class="card-label">Avg Gross Margin</div>
+      <div class="card-value green">40.1%</div>
+      <div class="card-sub">Target: 40% minimum</div>
     </div>
-    <div class="card">
+    <div class="card no-click">
       <div class="card-label">Labor Cap Tracker</div>
       <div class="card-value green">66%</div>
       <div class="card-sub">Target: 15% max of revenue</div>
-      <div class="gauge-wrap" style="margin-top:12px">
-        <div class="gauge-bar" style="height:12px"><div class="gauge-fill" style="width:100%;background:#2a7a4a"></div></div>
+      <div class="gauge-wrap">
+        <div class="gauge-bar"><div class="gauge-fill" style="width:100%;background:var(--green)"></div></div>
         <div class="gauge-labels"><span>0%</span><span>15% cap</span><span>30%</span></div>
       </div>
-      <div style="margin-top:16px">
+      <div style="margin-top:12px">
         <div class="stat-row"><span class="stat-label">Labor Budget</span><span class="stat-value">$57,258</span></div>
         <div class="stat-row"><span class="stat-label">Crew Payout</span><span class="stat-value">$37,855</span></div>
         <div class="stat-row"><span class="stat-label">Variance</span><span class="stat-value green">$19,403</span></div>
@@ -176,16 +220,17 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 
   <div class="section-header">Tier 3 &mdash; Fulfillment Watchdog</div>
   <div class="grid grid-2">
-    <div class="card">
+    <div class="card" onclick="showModal('open')">
+      <div class="card-hint">&#x2197; Click to see all open jobs</div>
       <div class="card-label">Job Status Breakdown</div>
       <div class="stat-row"><span class="stat-label">Jobs Open (Pipeline)</span><span class="stat-value">9</span></div>
       <div class="stat-row"><span class="stat-label">Jobs Won (Closed)</span><span class="stat-value green">1</span></div>
       <div class="stat-row"><span class="stat-label">Stuck 3+ Days</span><span class="stat-value orange">9</span></div>
       <div class="stat-row"><span class="stat-label">Below 40% Margin</span><span class="stat-value red">2</span></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">Jobs Open vs Won</div>
-      <canvas id="gm-jobs-chart" height="160"></canvas>
+    <div class="chart-card no-click">
+      <div class="chart-title">Jobs Open vs Won vs Stuck</div>
+      <canvas id="gm-jobs-chart" height="200"></canvas>
     </div>
   </div>
   <div class="ts">Updated daily at 6:10 AM ET</div>
@@ -197,12 +242,14 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 <div class="dashboard">
   <div class="section-header">Tier 1 &mdash; Financial Pulse</div>
   <div class="grid grid-2">
-    <div class="card">
+    <div class="card" onclick="showModal('pipeline')">
+      <div class="card-hint">&#x2197; Click to see all jobs</div>
       <div class="card-label">Total Pipeline Value</div>
       <div class="card-value gold">$154,500</div>
       <div class="card-sub">Active revenue potential</div>
     </div>
-    <div class="card">
+    <div class="card" onclick="showModal('netprofit')">
+      <div class="card-hint">&#x2197; Click for profit breakdown</div>
       <div class="card-label">Net Profit</div>
       <div class="card-value green">$25,475</div>
       <div class="card-sub">After all labor costs</div>
@@ -211,44 +258,43 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 
   <div class="section-header">Tier 2 &mdash; Labor and Margin Control</div>
   <div class="grid grid-2">
-    <div class="chart-card">
+    <div class="chart-card no-click">
       <div class="chart-title">Labor Budget vs Cost vs Variance</div>
-      <canvas id="cfo-labor-chart" height="180"></canvas>
+      <canvas id="cfo-labor-chart" height="200"></canvas>
     </div>
-    <div>
-      <div class="grid grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="card">
-          <div class="card-label">Total Labor Budget</div>
-          <div class="card-value" style="font-size:22px">$57,258</div>
-          <div class="card-sub">Committed</div>
-        </div>
-        <div class="card">
-          <div class="card-label">Total Labor Cost</div>
-          <div class="card-value" style="font-size:22px">$37,855</div>
-          <div class="card-sub">Paid out</div>
-        </div>
-        <div class="card">
-          <div class="card-label">Labor Variance</div>
-          <div class="card-value green" style="font-size:22px">$19,403</div>
-          <div class="card-sub">Under budget</div>
-        </div>
-        <div class="card">
-          <div class="card-label">Avg Gross Margin</div>
-          <div class="card-value green" style="font-size:22px">40.1%</div>
-          <div class="card-sub">Target: 40%+</div>
-        </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="card no-click">
+        <div class="card-label">Labor Budget</div>
+        <div class="card-value" style="font-size:22px">$57,258</div>
+        <div class="card-sub">Committed</div>
+      </div>
+      <div class="card no-click">
+        <div class="card-label">Labor Cost</div>
+        <div class="card-value" style="font-size:22px">$37,855</div>
+        <div class="card-sub">Paid out</div>
+      </div>
+      <div class="card no-click">
+        <div class="card-label">Labor Variance</div>
+        <div class="card-value green" style="font-size:22px">$19,403</div>
+        <div class="card-sub">Under budget</div>
+      </div>
+      <div class="card" onclick="showModal('margin')">
+        <div class="card-hint">&#x2197; See by job</div>
+        <div class="card-label">Avg Gross Margin</div>
+        <div class="card-value green" style="font-size:22px">40.1%</div>
+        <div class="card-sub">Target: 40%+</div>
       </div>
     </div>
   </div>
 
   <div class="section-header">Tier 3 &mdash; Enterprise Value</div>
   <div class="grid grid-2">
-    <div class="card">
+    <div class="card no-click">
       <div class="card-label">Enterprise Value 3x</div>
       <div class="card-value gold">$76,425</div>
       <div class="card-sub">Conservative multiple</div>
     </div>
-    <div class="card">
+    <div class="card no-click">
       <div class="card-label">Enterprise Value 5x</div>
       <div class="card-value gold">$127,375</div>
       <div class="card-sub">Growth multiple</div>
@@ -259,111 +305,199 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 </div>
 
 <script>
-// Show correct view
+// Job data - this gets overwritten daily by Make v10
+var JOBS = [
+  {id:"TgqCHz7UnC4JzqIkAMwh",name:"Jones Trophy Room",client:"Chipper Jones",value:31500,labor_budget:11025,labor_cost:6300,margin:45,stage:"Ready for Production",status:"won",last_updated:"2026-02-08",net_profit:7875},
+  {id:"psPkH0gBqYdZ0ZJ3R5lR",name:"Wilkins Game Room",client:"Dominique Wilkins",value:22400,labor_budget:9408,labor_cost:5600,margin:42,stage:"Margin Review",status:"open",last_updated:"2026-03-15",net_profit:3808},
+  {id:"pBbnH5nM7zfahWqUM43L",name:"Mike Barbershop",client:"Killer Mike",value:8400,labor_budget:2940,labor_cost:2100,margin:40,stage:"New Lead",status:"open",last_updated:"2026-03-15",net_profit:1260},
+  {id:"1APhpBaopUfaBMPO0B70",name:"Brown Master Bath",client:"Monica Brown",value:9900,labor_budget:3465,labor_cost:2475,margin:40,stage:"New Lead",status:"open",last_updated:"2026-03-15",net_profit:1485},
+  {id:"qMDSMfEulCfow8GxG4YU",name:"Benjamin Recording Studio",client:"Andre Benjamin",value:14400,labor_budget:5760,labor_cost:4320,margin:30,stage:"New Lead",status:"open",last_updated:"2026-03-15",net_profit:0},
+  {id:"vREyxAkQ53WPADGq2Nk4",name:"Foxworthy Whole House",client:"Jeff Foxworthy",value:12600,labor_budget:4200,labor_cost:3150,margin:45,stage:"New Lead",status:"open",last_updated:"2026-03-15",net_profit:2520},
+  {id:"Y3RWKZSHYUHMV0IJtMOU",name:"Roberts Kitchen Remodel",client:"Julia Roberts",value:9500,labor_budget:3800,labor_cost:2850,margin:30,stage:"New Lead",status:"open",last_updated:"2026-03-15",net_profit:0},
+  {id:"3Q4zNojKGptf4yDXA1sL",name:"Raymond Main Level Refinish",client:"Usher Raymond",value:25600,labor_budget:8960,labor_cost:5760,margin:42,stage:"New Lead",status:"open",last_updated:"2026-03-15",net_profit:4992},
+  {id:"JrfnRAysIgcjOQv23XQs",name:"Speed Lead Test",client:"Ludacris Bridges",value:11700,labor_budget:4500,labor_cost:3600,margin:45,stage:"New Lead",status:"open",last_updated:"2026-03-15",net_profit:1665},
+  {id:"sNA4UhByrXeJWUtFebOr",name:"Perry Studio Renovation",client:"Tyler Perry",value:8500,labor_budget:3200,labor_cost:1700,margin:42,stage:"New Lead",status:"open",last_updated:"2026-03-15",net_profit:1870}
+];
+
+var TODAY = new Date("2026-03-21");
+
+function daysSince(dateStr){
+  var d = new Date(dateStr);
+  return Math.floor((TODAY - d) / 86400000);
+}
+
+function fmt(n){return "$"+n.toLocaleString();}
+
+function marginBadge(m){
+  if(m>=40) return '<span class="badge green">'+m+'%</span>';
+  return '<span class="badge red">'+m+'%</span>';
+}
+
+function stageBadge(s){
+  return '<span class="badge gold">'+s+'</span>';
+}
+
+// Show/hide view
 var view = new URLSearchParams(location.search).get('view') || 'ceo';
 document.getElementById('view-' + view).className = 'view active';
 document.getElementById('tab-' + view).className = 'active';
 
-var gold = '#C2A04A';
-var green = '#2a7a4a';
-var red = '#c0392b';
-var orange = '#c07a2a';
-var lightGold = 'rgba(194,160,74,0.15)';
+// Charts
+var gold = '#C2A04A', green = '#2a7a4a', red = '#c0392b', orange = '#c07a2a';
 
-// CEO Stage Chart
-if (view === 'ceo') {
-  new Chart(document.getElementById('ceo-stage-chart'), {
-    type: 'bar',
-    data: {
-      labels: ['New Lead','Contacted','Site Visit','Estimate','Contract','Deposit','Production','Invoice'],
-      datasets: [{
-        label: 'Jobs',
-        data: [2,1,1,1,1,1,1,1],
-        backgroundColor: gold,
-        borderRadius: 4
+if(view === 'ceo'){
+  new Chart(document.getElementById('ceo-margin-chart'), {
+    type:'bar',
+    data:{
+      labels: JOBS.map(function(j){return j.client.split(' ')[0];}),
+      datasets:[{
+        label:'Margin %',
+        data: JOBS.map(function(j){return j.margin;}),
+        backgroundColor: JOBS.map(function(j){return j.margin>=40?green:red;}),
+        borderRadius:4
       }]
     },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { ticks: { stepSize: 1 }, grid: { color: '#f0f0f0' } },
-        x: { ticks: { font: { size: 9 } }, grid: { display: false } }
+    options:{
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{min:0,max:60,ticks:{callback:function(v){return v+'%';}},grid:{color:'#f0f0f0'}},
+        x:{ticks:{font:{size:9}},grid:{display:false}}
       }
     }
   });
 }
 
-// GM Charts
-if (view === 'gm') {
-  new Chart(document.getElementById('gm-margin-chart'), {
-    type: 'bar',
-    data: {
-      labels: ['Chipper J','Wilkins','Killer M','Monica B','Andre B','Foxworthy','Roberts','Usher R','Ludacris','Tyler P'],
-      datasets: [{
-        label: 'Margin %',
-        data: [45,42,40,40,30,45,30,42,45,42],
-        backgroundColor: [green,green,green,green,red,green,red,green,green,green],
-        borderRadius: 4
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { display: false },
-        annotation: {}
-      },
-      scales: {
-        y: {
-          min: 0, max: 60,
-          ticks: { callback: function(v){ return v+'%'; } },
-          grid: { color: '#f0f0f0' }
-        },
-        x: { ticks: { font: { size: 8 } }, grid: { display: false } }
-      }
-    }
-  });
-
+if(view === 'gm'){
   new Chart(document.getElementById('gm-jobs-chart'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Open','Won','Stuck'],
-      datasets: [{
-        data: [9,1,9],
-        backgroundColor: [gold, green, orange],
-        borderWidth: 0
-      }]
+    type:'doughnut',
+    data:{
+      labels:['Open','Won','Stuck 3+ Days'],
+      datasets:[{data:[9,1,9],backgroundColor:[gold,green,orange],borderWidth:0}]
     },
-    options: {
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 10 } } }
-      },
-      cutout: '65%'
+    options:{plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:16}}},cutout:'65%'}
+  });
+}
+
+if(view === 'cfo'){
+  new Chart(document.getElementById('cfo-labor-chart'), {
+    type:'bar',
+    data:{
+      labels:['Labor Budget','Labor Cost','Variance'],
+      datasets:[{data:[57258,37855,19403],backgroundColor:[gold,orange,green],borderRadius:6}]
+    },
+    options:{
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{ticks:{callback:function(v){return '$'+Math.round(v/1000)+'K';}},grid:{color:'#f0f0f0'}},
+        x:{grid:{display:false}}
+      }
     }
   });
 }
 
-// CFO Labor Chart
-if (view === 'cfo') {
-  new Chart(document.getElementById('cfo-labor-chart'), {
-    type: 'bar',
-    data: {
-      labels: ['Labor Budget','Labor Cost','Variance'],
-      datasets: [{
-        data: [57258, 37855, 19403],
-        backgroundColor: [gold, orange, green],
-        borderRadius: 6
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        y: {
-          ticks: { callback: function(v){ return '$'+Math.round(v/1000)+'K'; } },
-          grid: { color: '#f0f0f0' }
-        },
-        x: { grid: { display: false } }
-      }
-    }
+// Modal
+function openModal(title, bodyHtml){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-overlay').className = 'modal-overlay open';
+}
+
+function closeModal(e){
+  if(!e || e.target === document.getElementById('modal-overlay')){
+    document.getElementById('modal-overlay').className = 'modal-overlay';
+  }
+}
+
+function jobTable(jobs, cols){
+  if(!jobs.length) return '<p style="color:var(--muted);font-size:13px;padding:20px 0">No jobs found.</p>';
+  var h = '<table class="job-table"><thead><tr>';
+  cols.forEach(function(c){h+='<th>'+c.label+'</th>';});
+  h+='</tr></thead><tbody>';
+  jobs.forEach(function(j){
+    h+='<tr>';
+    cols.forEach(function(c){h+='<td>'+c.fn(j)+'</td>';});
+    h+='</tr>';
   });
+  h+='</tbody></table>';
+  return h;
+}
+
+function showModal(type){
+  var title, body;
+  if(type==='pipeline'){
+    title = 'All Jobs — Pipeline Detail';
+    var total = JOBS.reduce(function(s,j){return s+j.value;},0);
+    body = '<div class="modal-summary"><div class="modal-stat"><div class="modal-stat-label">Total Value</div><div class="modal-stat-value gold">'+fmt(total)+'</div></div><div class="modal-stat"><div class="modal-stat-label">Total Jobs</div><div class="modal-stat-value">'+JOBS.length+'</div></div></div>';
+    body += jobTable(JOBS,[
+      {label:'Job',fn:function(j){return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>';}},
+      {label:'Value',fn:function(j){return '<strong>'+fmt(j.value)+'</strong>';}},
+      {label:'Margin',fn:function(j){return marginBadge(j.margin);}},
+      {label:'Stage',fn:function(j){return stageBadge(j.stage);}}
+    ]);
+  } else if(type==='netprofit'){
+    title = 'Net Profit Breakdown';
+    var totalProfit = JOBS.reduce(function(s,j){return s+j.net_profit;},0);
+    var totalVal = JOBS.reduce(function(s,j){return s+j.value;},0);
+    body = '<div class="modal-summary"><div class="modal-stat"><div class="modal-stat-label">Total Net Profit</div><div class="modal-stat-value green">'+fmt(totalProfit)+'</div></div><div class="modal-stat"><div class="modal-stat-label">Profit Margin</div><div class="modal-stat-value green">'+Math.round(totalProfit/totalVal*100)+'%</div></div></div>';
+    body += jobTable(JOBS,[
+      {label:'Job',fn:function(j){return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>';}},
+      {label:'Contract',fn:function(j){return fmt(j.value);}},
+      {label:'Labor',fn:function(j){return fmt(j.labor_cost);}},
+      {label:'Net Profit',fn:function(j){return '<strong style="color:'+(j.net_profit>0?'var(--green)':'var(--red)')+'">'+fmt(j.net_profit)+'</strong>';}}
+    ]);
+  } else if(type==='margin'){
+    title = 'Gross Margin by Job';
+    var below = JOBS.filter(function(j){return j.margin<40;});
+    var above = JOBS.filter(function(j){return j.margin>=40;});
+    body = '<div class="modal-summary"><div class="modal-stat"><div class="modal-stat-label">At/Above 40%</div><div class="modal-stat-value green">'+above.length+'</div></div><div class="modal-stat"><div class="modal-stat-label">Below 40%</div><div class="modal-stat-value red">'+below.length+'</div></div></div>';
+    body += jobTable(JOBS.sort(function(a,b){return a.margin-b.margin;}),[
+      {label:'Job',fn:function(j){return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>';}},
+      {label:'Margin',fn:function(j){return marginBadge(j.margin);}},
+      {label:'Contract',fn:function(j){return fmt(j.value);}},
+      {label:'Net Profit',fn:function(j){return fmt(j.net_profit);}}
+    ]);
+  } else if(type==='belowmargin'){
+    title = 'Red Flag Jobs — Below 40% Margin';
+    var flagged = JOBS.filter(function(j){return j.margin<40;});
+    body = '<div class="modal-summary"><div class="modal-stat"><div class="modal-stat-label">Flagged Jobs</div><div class="modal-stat-value red">'+flagged.length+'</div></div><div class="modal-stat"><div class="modal-stat-label">Action Required</div><div class="modal-stat-value orange">Review Pricing</div></div></div>';
+    body += jobTable(flagged,[
+      {label:'Job',fn:function(j){return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>';}},
+      {label:'Margin',fn:function(j){return marginBadge(j.margin);}},
+      {label:'Contract',fn:function(j){return fmt(j.value);}},
+      {label:'Stage',fn:function(j){return stageBadge(j.stage);}}
+    ]);
+  } else if(type==='stuck'){
+    title = 'Stuck Jobs — 3+ Days No Movement';
+    var stuckJobs = JOBS.filter(function(j){return j.status==='open' && daysSince(j.last_updated)>=3;});
+    body = '<div class="modal-summary"><div class="modal-stat"><div class="modal-stat-label">Stuck Jobs</div><div class="modal-stat-value orange">'+stuckJobs.length+'</div></div><div class="modal-stat"><div class="modal-stat-label">Value at Risk</div><div class="modal-stat-value orange">'+fmt(stuckJobs.reduce(function(s,j){return s+j.value;},0))+'</div></div></div>';
+    body += jobTable(stuckJobs,[
+      {label:'Job',fn:function(j){return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>';}},
+      {label:'Days Idle',fn:function(j){return '<strong style="color:var(--orange)">'+daysSince(j.last_updated)+' days</strong>';}},
+      {label:'Value',fn:function(j){return fmt(j.value);}},
+      {label:'Stage',fn:function(j){return stageBadge(j.stage);}}
+    ]);
+  } else if(type==='open'){
+    title = 'Open Jobs — Active Pipeline';
+    var openJobs = JOBS.filter(function(j){return j.status==='open';});
+    body = '<div class="modal-summary"><div class="modal-stat"><div class="modal-stat-label">Open Jobs</div><div class="modal-stat-value">'+openJobs.length+'</div></div><div class="modal-stat"><div class="modal-stat-label">Open Value</div><div class="modal-stat-value gold">'+fmt(openJobs.reduce(function(s,j){return s+j.value;},0))+'</div></div></div>';
+    body += jobTable(openJobs,[
+      {label:'Job',fn:function(j){return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>';}},
+      {label:'Value',fn:function(j){return fmt(j.value);}},
+      {label:'Margin',fn:function(j){return marginBadge(j.margin);}},
+      {label:'Stage',fn:function(j){return stageBadge(j.stage);}}
+    ]);
+  } else if(type==='won'){
+    title = 'Jobs Won — Closed This Year';
+    var wonJobs = JOBS.filter(function(j){return j.status==='won';});
+    body = '<div class="modal-summary"><div class="modal-stat"><div class="modal-stat-label">Jobs Won</div><div class="modal-stat-value green">'+wonJobs.length+'</div></div><div class="modal-stat"><div class="modal-stat-label">Total Revenue</div><div class="modal-stat-value green">'+fmt(wonJobs.reduce(function(s,j){return s+j.value;},0))+'</div></div></div>';
+    body += jobTable(wonJobs,[
+      {label:'Job',fn:function(j){return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>';}},
+      {label:'Value',fn:function(j){return fmt(j.value);}},
+      {label:'Margin',fn:function(j){return marginBadge(j.margin);}},
+      {label:'Net Profit',fn:function(j){return '<strong style="color:var(--green)">'+fmt(j.net_profit)+'</strong>';}}
+    ]);
+  }
+  openModal(title, body);
 }
 </script>
 </body>
