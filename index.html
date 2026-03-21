@@ -546,9 +546,239 @@ document.getElementById("tab-"+view).className="active";
 })();
 
 // ── Date toggle ─────────────────────────────────────────
-function setDate(btn,period){
-  document.querySelectorAll(".date-btn").forEach(function(b){b.className="date-btn";});
-  btn.className="date-btn active";
+var activePeriod = 'today';
+
+function setDate(btn, period) {
+  document.querySelectorAll(".date-btn").forEach(function(b){ b.className = "date-btn"; });
+  btn.className = "date-btn active";
+  activePeriod = period;
+  refreshCEOMetrics();
+}
+
+function getPeriodJobs(period) {
+  var now = new Date(TODAY);
+  var start;
+  if (period === 'today') {
+    start = new Date(now); start.setHours(0,0,0,0);
+  } else if (period === 'week') {
+    start = new Date(now);
+    start.setDate(now.getDate() - now.getDay()); // Sunday
+    start.setHours(0,0,0,0);
+  } else if (period === 'ytd') {
+    start = new Date(now.getFullYear(), 0, 1);
+  }
+  return JOBS.filter(function(j) {
+    if (!j.date_created) return false;
+    var jd = new Date(j.date_created);
+    return jd >= start && jd <= now;
+  });
+}
+
+function getPeriodLabel(period) {
+  if (period === 'today') return 'today';
+  if (period === 'week') return 'this week';
+  if (period === 'ytd') return 'year to date';
+  return '';
+}
+
+function refreshCEOMetrics() {
+  var period = activePeriod;
+  var periodJobs = getPeriodJobs(period);
+  var label = getPeriodLabel(period);
+  var allActive = JOBS.filter(function(j){ return j.status==='open'||j.status==='won'; });
+
+  // ── Today's Sales / Pulse card ──
+  var pulseVal = periodJobs.reduce(function(s,j){ return s+j.value; }, 0);
+  var todayEl = document.getElementById('ceo-today-sales');
+  var todaySub = document.getElementById('ceo-today-sub');
+  if (todayEl) {
+    todayEl.textContent = fmt(pulseVal);
+    todayEl.className = 'card-value ' + (pulseVal > 0 ? 'green' : 'gold');
+  }
+  if (todaySub) {
+    todaySub.textContent = periodJobs.length > 0
+      ? periodJobs.length + ' job' + (periodJobs.length>1?'s':'') + ' added ' + label
+      : 'No jobs added ' + label;
+  }
+  // Update card label
+  var pulseLabel = document.querySelector('#ceo-today-sales').closest('.card').querySelector('.card-label');
+  if (pulseLabel) pulseLabel.innerHTML = '&#x26A1; The Pulse &mdash; ' +
+    (period==='today' ? "Today's Sales" : period==='week' ? "This Week's Sales" : "YTD Sales");
+
+  // ── Yesterday / Comparison card ──
+  var compJobs, compLabel;
+  if (period === 'today') {
+    var yest = new Date(TODAY); yest.setDate(yest.getDate()-1);
+    var yestStr = yest.toISOString().split('T')[0];
+    compJobs = JOBS.filter(function(j){ return j.date_created && j.date_created.startsWith(yestStr); });
+    compLabel = "Yesterday's Sales";
+  } else if (period === 'week') {
+    // Last week
+    var lws = new Date(TODAY); lws.setDate(lws.getDate() - lws.getDay() - 7);
+    var lwe = new Date(TODAY); lwe.setDate(lwe.getDate() - lwe.getDay() - 1);
+    compJobs = JOBS.filter(function(j){
+      if (!j.date_created) return false;
+      var d = new Date(j.date_created);
+      return d >= lws && d <= lwe;
+    });
+    compLabel = "Last Week's Sales";
+  } else {
+    // Last year
+    var lastYearStart = new Date(TODAY.getFullYear()-1, 0, 1);
+    var lastYearEnd = new Date(TODAY.getFullYear()-1, 11, 31);
+    compJobs = JOBS.filter(function(j){
+      if (!j.date_created) return false;
+      var d = new Date(j.date_created);
+      return d >= lastYearStart && d <= lastYearEnd;
+    });
+    compLabel = "Last Year's Sales";
+  }
+  var compVal = compJobs.reduce(function(s,j){ return s+j.value; }, 0);
+  var yestEl = document.getElementById('ceo-yesterday-sales');
+  var yestSub = document.getElementById('ceo-yesterday-sub');
+  if (yestEl) {
+    yestEl.textContent = fmt(compVal);
+    // Color: green if current > comparison, red if worse
+    yestEl.className = 'card-value ' + (pulseVal >= compVal ? 'green' : 'red');
+  }
+  if (yestSub) {
+    yestSub.textContent = compJobs.length > 0
+      ? compJobs.length + ' job' + (compJobs.length>1?'s':'') + ' — ' + compLabel.toLowerCase()
+      : 'No jobs — ' + compLabel.toLowerCase();
+  }
+  var compLabelEl = document.getElementById('ceo-yesterday-sales');
+  if (compLabelEl) {
+    var compCard = compLabelEl.closest('.card').querySelector('.card-label');
+    if (compCard) compCard.innerHTML = '&#x1F4C5; ' + compLabel;
+  }
+
+  // ── Pipeline / Net Profit cards ──
+  var pipelineVal = periodJobs.reduce(function(s,j){ return s+j.value; }, 0);
+  var profitVal = periodJobs.reduce(function(s,j){ return s+j.net_profit; }, 0);
+
+  // Update pipeline card
+  var pipelineEls = document.querySelectorAll('.card-value.gold');
+  // Find by closest card with "Total Pipeline Value" label
+  document.querySelectorAll('.card').forEach(function(card) {
+    var lbl = card.querySelector('.card-label');
+    if (!lbl) return;
+    if (lbl.textContent.includes('Total Pipeline')) {
+      var val = card.querySelector('.card-value');
+      var sub = card.querySelector('.card-sub');
+      if (val) val.textContent = fmt(periodJobs.length ? pipelineVal : JOBS.reduce(function(s,j){return s+j.value;},0));
+      if (sub) sub.textContent = periodJobs.length ? periodJobs.length+' job'+(periodJobs.length>1?'s':'')+' '+label : 'All active jobs combined';
+    }
+    if (lbl.textContent.includes('Net Profit')) {
+      var val2 = card.querySelector('.card-value');
+      var sub2 = card.querySelector('.card-sub');
+      if (val2) {
+        val2.textContent = fmt(periodJobs.length ? profitVal : JOBS.reduce(function(s,j){return s+j.net_profit;},0));
+        val2.className = 'card-value ' + ((periodJobs.length ? profitVal : 0) >= 0 ? 'green' : 'red');
+      }
+      if (sub2) sub2.textContent = periodJobs.length ? 'Net for '+label : 'After all labor costs';
+    }
+  });
+
+  // ── Red Flag Table ── (always shows all jobs below margin regardless of period)
+  // No change needed — red flags are structural, not time-based
+
+  // ── Velocity chart ── rebuild for period
+  var velocityCanvas = document.getElementById('ceo-velocity-chart');
+  if (velocityCanvas && velocityCanvas._chart) {
+    velocityCanvas._chart.destroy();
+  }
+  buildVelocityChart(period);
+
+  // ── Pending card ──
+  var pendingVal = document.getElementById('ceo-pending-val');
+  var pendingSub = document.getElementById('ceo-pending-sub');
+  if (pendingVal) {
+    var openJobs = periodJobs.length ? periodJobs.filter(function(j){return j.status==='open';})
+      : JOBS.filter(function(j){return j.status==='open';});
+    pendingVal.textContent = fmt(openJobs.reduce(function(s,j){return s+j.value;},0));
+    if (pendingSub) pendingSub.textContent = openJobs.length + ' active jobs ' + (periodJobs.length ? label : '');
+  }
+}
+
+function buildVelocityChart(period) {
+  var canvas = document.getElementById('ceo-velocity-chart');
+  if (!canvas) return;
+  // Destroy old chart if exists
+  var existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+
+  var days, labels = [], counts = [], values = [];
+  if (period === 'today') {
+    days = 14;
+  } else if (period === 'week') {
+    days = 28;
+  } else {
+    days = 90;
+  }
+
+  for (var i = days-1; i >= 0; i--) {
+    var d = new Date(TODAY); d.setDate(d.getDate()-i);
+    var ds = d.toISOString().split('T')[0];
+    var shortLabel = period === 'ytd'
+      ? (i % 7 === 0 ? (d.getMonth()+1)+'/'+(d.getDate()) : '')
+      : (d.getMonth()+1)+'/'+(d.getDate());
+    labels.push(shortLabel);
+    var dayJobs = JOBS.filter(function(j){ return j.date_created && j.date_created.startsWith(ds); });
+    counts.push(dayJobs.length);
+    values.push(dayJobs.reduce(function(s,j){ return s+j.value; },0));
+  }
+
+  new Chart(canvas, {
+    type:'bar',
+    data:{
+      labels: labels,
+      datasets:[{
+        label:'Jobs Added',
+        data: counts,
+        backgroundColor: counts.map(function(c){ return c>0 ? 'rgba(194,160,74,0.85)' : 'rgba(224,224,224,0.4)'; }),
+        hoverBackgroundColor: counts.map(function(c){ return c>0 ? 'rgba(194,160,74,1)' : 'rgba(200,200,200,0.6)'; }),
+        borderRadius:3
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(ctx){
+          var idx=ctx.dataIndex;
+          return ctx.raw+' job'+(ctx.raw!==1?'s':'')+' — '+fmt(values[idx]);
+        }}}
+      },
+      scales:{
+        y:{min:0, ticks:{stepSize:1,font:{size:8}}, grid:{color:'#f5f5f5'}},
+        x:{ticks:{font:{size:8}, maxRotation:0}, grid:{display:false}}
+      },
+      onClick: function(evt, elements){
+        if(!elements.length) return;
+        var idx = elements[0].index;
+        if(counts[idx] === 0) return;
+        var d2 = new Date(TODAY); d2.setDate(d2.getDate()-(days-1-idx));
+        var ds2 = d2.toISOString().split('T')[0];
+        var dayJobs2 = JOBS.filter(function(j){ return j.date_created && j.date_created.startsWith(ds2); });
+        var totalVal2 = dayJobs2.reduce(function(s,j){ return s+j.value; },0);
+        var body = '<div class="modal-summary">'
+          +'<div class="modal-stat"><div class="modal-stat-label">Date</div><div class="modal-stat-value gold">'+ds2+'</div></div>'
+          +'<div class="modal-stat"><div class="modal-stat-label">Total Added</div><div class="modal-stat-value green">'+fmt(totalVal2)+'</div></div>'
+          +'</div>';
+        body += jobTable(dayJobs2,[
+          {label:'Job',fn:function(j){return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>';}},
+          {label:'Value',fn:function(j){return '<strong>'+fmt(j.value)+'</strong>';}},
+          {label:'Margin',fn:function(j){return marginBadge(j.margin);}},
+          {label:'Crew',fn:function(j){return j.crew;}},
+          {label:'Stage',fn:function(j){return stageBadge(j.stage);}}
+        ]);
+        openModal('Jobs Added — '+ds2, body);
+      },
+      onHover:function(evt,elements){
+        evt.native.target.style.cursor = elements.length&&counts[elements[0].index]>0?'pointer':'default';
+      }
+    }
+  });
 }
 
 // ── Crew filter ─────────────────────────────────────────
@@ -647,77 +877,9 @@ buildGMTables();
 var gold="#C2A04A",green="#2a7a4a",red="#c0392b",orange="#c07a2a";
 
 if(view==="ceo"){
-  // Velocity chart — jobs added per day last 14 days
-  (function(){
-    var canvas = document.getElementById('ceo-velocity-chart');
-    if(!canvas) return;
-    var days = 14;
-    var labels = [], counts = [], values = [];
-    for(var i=days-1; i>=0; i--) {
-      var d = new Date(TODAY); d.setDate(d.getDate()-i);
-      var ds = d.toISOString().split('T')[0];
-      var shortLabel = (d.getMonth()+1)+'/'+(d.getDate());
-      labels.push(shortLabel);
-      var dayJobs = JOBS.filter(function(j){ return j.date_created && j.date_created.startsWith(ds); });
-      counts.push(dayJobs.length);
-      values.push(dayJobs.reduce(function(s,j){ return s+j.value; },0));
-    }
-    var velocityChart = new Chart(canvas, {
-      type:'bar',
-      data:{
-        labels: labels,
-        datasets:[{
-          label:'Jobs Added',
-          data: counts,
-          backgroundColor: counts.map(function(c){ return c>0 ? 'rgba(194,160,74,0.85)' : 'rgba(224,224,224,0.4)'; }),
-          hoverBackgroundColor: counts.map(function(c){ return c>0 ? 'rgba(194,160,74,1)' : 'rgba(200,200,200,0.6)'; }),
-          borderRadius:3,
-          cursor:'pointer'
-        }]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{
-          legend:{display:false},
-          tooltip:{callbacks:{label:function(ctx){
-            var idx=ctx.dataIndex;
-            return ctx.raw+' job'+(ctx.raw!==1?'s':'')+' — '+fmt(values[idx]);
-          }}}
-        },
-        scales:{
-          y:{min:0, ticks:{stepSize:1,font:{size:8}}, grid:{color:'#f5f5f5'}},
-          x:{ticks:{font:{size:8}}, grid:{display:false}}
-        },
-        onClick: function(evt, elements){
-          if(!elements.length) return;
-          var idx = elements[0].index;
-          if(counts[idx] === 0) return;
-          // Rebuild the date string for this bar
-          var d = new Date(TODAY);
-          d.setDate(d.getDate() - (days - 1 - idx));
-          var ds = d.toISOString().split('T')[0];
-          var label = labels[idx];
-          var dayJobs = JOBS.filter(function(j){ return j.date_created && j.date_created.startsWith(ds); });
-          var totalVal = dayJobs.reduce(function(s,j){ return s+j.value; },0);
-          var body = '<div class="modal-summary">'
-            +'<div class="modal-stat"><div class="modal-stat-label">Date</div><div class="modal-stat-value gold">'+ds+'</div></div>'
-            +'<div class="modal-stat"><div class="modal-stat-label">Total Added</div><div class="modal-stat-value green">'+fmt(totalVal)+'</div></div>'
-            +'</div>';
-          body += jobTable(dayJobs, [
-            {label:'Job', fn:function(j){ return '<strong>'+j.name+'</strong><br><span style="color:var(--muted);font-size:11px">'+j.client+'</span>'; }},
-            {label:'Value', fn:function(j){ return '<strong>'+fmt(j.value)+'</strong>'; }},
-            {label:'Margin', fn:function(j){ return marginBadge(j.margin); }},
-            {label:'Crew', fn:function(j){ return j.crew; }},
-            {label:'Stage', fn:function(j){ return stageBadge(j.stage); }}
-          ]);
-          openModal('Jobs Added — '+ds, body);
-        },
-        onHover: function(evt, elements){
-          evt.native.target.style.cursor = elements.length && counts[elements[0].index] > 0 ? 'pointer' : 'default';
-        }
-      }
-    });
-  })();
+  // Velocity chart built by buildVelocityChart()
+  buildVelocityChart('today');
+
 
   var scatterData=JOBS.map(function(j){return{x:j.value,y:j.margin,label:j.client.split(" ")[0],name:j.name};});
   new Chart(document.getElementById("ceo-margin-chart"),{
@@ -918,6 +1080,7 @@ var CHANGE_ORDERS = [
 </script>
 </body>
 </html>
+
 
 
 
