@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -134,47 +134,46 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
   </div>
 
   <div class="section-header">Tier 3 &mdash; Fulfillment Watchdog</div>
-  <div class="grid grid-2">
-    <div class="chart-card no-click">
-      <div class="chart-title">Margin % by Job</div>
-      <canvas id="ceo-margin-chart" height="180"></canvas>
+  <div class="grid grid-3" style="margin-bottom:10px">
+    <div class="card" onclick="showModal('open')">
+      <div class="card-hint">&#x2197; See all jobs</div>
+      <div class="card-label">Jobs Open</div>
+      <div class="card-value">9</div>
+      <div class="card-sub">In active pipeline</div>
     </div>
-    <div class="grid grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="card" onclick="showModal('open')">
-        <div class="card-hint">&#x2197; See all jobs</div>
-        <div class="card-label">Jobs Open</div>
-        <div class="card-value">9</div>
-        <div class="card-sub">In active pipeline</div>
-      </div>
-      <div class="card" onclick="showModal('won')">
-        <div class="card-hint">&#x2197; See won jobs</div>
-        <div class="card-label">Jobs Won</div>
-        <div class="card-value green">1</div>
-        <div class="card-sub">Closed this year</div>
-      </div>
-      <div class="card" onclick="showModal('stuck')">
-        <div class="card-hint">&#x2197; See stuck jobs</div>
-        <div class="card-label">Stuck Jobs</div>
-        <div class="card-value orange">9</div>
-        <div class="card-sub">Over 3 days idle</div>
-      </div>
-      <div class="card no-click">
-        <div class="card-label">Enterprise Value 3x</div>
-        <div class="card-value gold">$76,425</div>
-        <div class="card-sub">Conservative multiple</div>
-      </div>
+    <div class="card" onclick="showModal('won')">
+      <div class="card-hint">&#x2197; See won jobs</div>
+      <div class="card-label">Jobs Won</div>
+      <div class="card-value green">1</div>
+      <div class="card-sub">Closed this year</div>
     </div>
-    <div class="grid grid-2" style="margin-top:10px">
-      <div class="card no-click">
-        <div class="card-label">Enterprise Value 5x</div>
-        <div class="card-value gold">$127,375</div>
-        <div class="card-sub">Growth multiple</div>
-      </div>
-      <div class="card no-click">
-        <div class="card-label">Jobs Below Margin</div>
-        <div class="card-value red">2</div>
-        <div class="card-sub">Red flag jobs</div>
-      </div>
+    <div class="card" onclick="showModal('stuck')">
+      <div class="card-hint">&#x2197; See stuck jobs</div>
+      <div class="card-label">Stuck Jobs</div>
+      <div class="card-value orange">9</div>
+      <div class="card-sub">Over 3 days idle</div>
+    </div>
+    <div class="card no-click">
+      <div class="card-label">Enterprise Value 3x</div>
+      <div class="card-value gold">$76,425</div>
+      <div class="card-sub">Conservative multiple</div>
+    </div>
+    <div class="card no-click">
+      <div class="card-label">Enterprise Value 5x</div>
+      <div class="card-value gold">$127,375</div>
+      <div class="card-sub">Growth multiple</div>
+    </div>
+    <div class="card" onclick="showModal('belowmargin')">
+      <div class="card-hint">&#x2197; See red flag jobs</div>
+      <div class="card-label">Jobs Below Margin</div>
+      <div class="card-value red">2</div>
+      <div class="card-sub">Red flag jobs</div>
+    </div>
+  </div>
+  <div class="chart-card no-click">
+    <div class="chart-title">Margin % by Job</div>
+    <div style="position:relative;height:140px">
+      <canvas id="ceo-margin-chart"></canvas>
     </div>
   </div>
   <div class="ts">Updated daily at 6:10 AM ET</div>
@@ -363,13 +362,7 @@ if(view === 'ceo'){
         borderRadius:4
       }]
     },
-    options:{
-      plugins:{legend:{display:false}},
-      scales:{
-        y:{min:0,max:60,ticks:{callback:function(v){return v+'%';}},grid:{color:'#f0f0f0'}},
-        x:{ticks:{font:{size:9}},grid:{display:false}}
-      }
-    }
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:60,ticks:{callback:function(v){return v+'%';}},grid:{color:'#f0f0f0'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}
   });
 }
 
@@ -508,5 +501,9 @@ function showModal(type){
 </script>
 </body>
 </html>
+
+
+
+
 
 
