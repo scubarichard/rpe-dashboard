@@ -171,8 +171,8 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
     </div>
   </div>
   <div class="chart-card no-click">
-    <div class="chart-title">Margin % by Job</div>
-    <div style="position:relative;height:140px">
+    <div class="chart-title">Margin % vs Contract Value &mdash; <span style="color:var(--red)">&#9679;</span> Below 40% &nbsp; <span style="color:var(--green)">&#9679;</span> At/Above 40%</div>
+    <div style="position:relative;height:200px">
       <canvas id="ceo-margin-chart"></canvas>
     </div>
   </div>
@@ -351,18 +351,68 @@ document.getElementById('tab-' + view).className = 'active';
 var gold = '#C2A04A', green = '#2a7a4a', red = '#c0392b', orange = '#c07a2a';
 
 if(view === 'ceo'){
-  new Chart(document.getElementById('ceo-margin-chart'), {
-    type:'bar',
+  var scatterData = JOBS.map(function(j){
+    return { x: j.value, y: j.margin, label: j.client.split(' ')[0], name: j.name };
+  });
+  var scatterChart = new Chart(document.getElementById('ceo-margin-chart'), {
+    type:'scatter',
     data:{
-      labels: JOBS.map(function(j){return j.client.split(' ')[0];}),
-      datasets:[{
-        label:'Margin %',
-        data: JOBS.map(function(j){return j.margin;}),
-        backgroundColor: JOBS.map(function(j){return j.margin>=40?green:red;}),
-        borderRadius:4
-      }]
+      datasets:[
+        {
+          label:'At/Above 40%',
+          data: scatterData.filter(function(d){return d.y>=40;}),
+          backgroundColor: 'rgba(42,122,74,0.75)',
+          pointRadius: 9,
+          pointHoverRadius: 12
+        },
+        {
+          label:'Below 40%',
+          data: scatterData.filter(function(d){return d.y<40;}),
+          backgroundColor: 'rgba(192,57,43,0.75)',
+          pointRadius: 9,
+          pointHoverRadius: 12
+        },
+        {
+          label:'40% Target',
+          data: [{x:0,y:40},{x:40000,y:40}],
+          type:'line',
+          borderColor:'rgba(192,57,43,0.5)',
+          borderDash:[6,4],
+          borderWidth:2,
+          pointRadius:0,
+          fill:false
+        }
+      ]
     },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:60,ticks:{callback:function(v){return v+'%';}},grid:{color:'#f0f0f0'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:function(ctx){
+              var d = ctx.raw;
+              return (d.label||'') + ' — $' + (d.x||0).toLocaleString() + ' | ' + (d.y||0) + '% margin';
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          title:{display:true,text:'Contract Value',font:{size:10},color:'#888'},
+          ticks:{callback:function(v){return '$'+Math.round(v/1000)+'K';},font:{size:9}},
+          grid:{color:'#f0f0f0'},
+          min:0, max:40000
+        },
+        y:{
+          title:{display:true,text:'Gross Margin %',font:{size:10},color:'#888'},
+          min:0, max:60,
+          ticks:{callback:function(v){return v+'%';},font:{size:9}},
+          grid:{color:'#f0f0f0'}
+        }
+      }
+    }
   });
 }
 
@@ -501,6 +551,7 @@ function showModal(type){
 </script>
 </body>
 </html>
+
 
 
 
