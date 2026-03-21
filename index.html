@@ -246,9 +246,9 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
           </div>
         </div>
         <div style="text-align:center;min-width:80px;padding:8px;background:#f8f8f8;border-radius:8px">
-          <div style="font-size:28px;font-weight:700;color:var(--text)">5</div>
+          <div style="font-size:28px;font-weight:700;color:var(--text)">2</div>
           <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">EMPLOYEES</div>
-          <div style="font-size:8px;color:var(--gold);font-family:'DM Mono',monospace;margin-top:4px">&#x270F; Confirm w/ Carey</div>
+          <div style="font-size:8px;color:var(--green);font-family:'DM Mono',monospace;margin-top:4px">&#x2714; Live from GHL</div>
         </div>
       </div>
     </div>
@@ -695,7 +695,7 @@ function refreshCEOMetrics() {
   buildVelocityChart(period);
 
   // ── RPE Gauge ──
-  var HEADCOUNT = 5; // hardcoded — update when GHL PIT token has Users scope
+  var HEADCOUNT = 2; // live from GHL Users API: Azeem Ullah + Richard Mabbun
   var monthStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
   var monthJobs = JOBS.filter(function(j){
     var d = new Date(j.date_created || j.last_updated);
