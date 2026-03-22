@@ -511,12 +511,13 @@ var tabEl = document.getElementById("tab-"+view); if(tabEl) tabEl.className="act
 
 // Nav hidden via CSS class set in <head> — see embed-mode above
 
-// ── Sovereign Banner ────────────────────────────────────
+// ── Sovereign Banner (CEO view only) ────────────────────
 (function(){
+  var banner = document.getElementById("sovereign-banner");
+  if(view !== "ceo"){ banner.style.display="none"; return; }
   var openJobs = JOBS.filter(function(j){return j.status==="open";});
   var avgM = openJobs.reduce(function(s,j){return s+j.margin;},0)/openJobs.length;
   var stuck = JOBS.filter(function(j){return j.status==="open"&&daysSince(j.last_updated)>=3;});
-  var banner = document.getElementById("sovereign-banner");
   if(avgM>=40 && stuck.length<=2){
     banner.className="sovereign-banner win";
     banner.textContent="&#x2728; The System is Winning. Avg margin "+avgM.toFixed(1)+"% — above target. Enjoy your day.";
