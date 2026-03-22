@@ -552,6 +552,11 @@ var view = new URLSearchParams(location.search).get("view")||"ceo";
 var embed = document.documentElement.classList.contains('embed-mode');
 document.getElementById("view-"+view).className="view active";
 document.getElementById("tab-"+view).className="active";
+// Auto-select "Today" period on load
+document.addEventListener("DOMContentLoaded", function() {
+  var todayBtn = document.getElementById("period-today");
+  if (todayBtn) todayBtn.click();
+});
 
 // Nav hidden via CSS class set in <head> — see embed-mode above
 
