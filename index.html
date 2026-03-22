@@ -1,6 +1,13 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+<script>
+// Inject nav-hiding CSS synchronously before any rendering
+// ?noNav=1 = GHL embed mode (nav hidden, view locked)
+if (new URLSearchParams(location.search).get('noNav')) {
+  document.write('<style>.nav{display:none!important}.dashboard{padding-top:8px!important}</style>');
+}
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
