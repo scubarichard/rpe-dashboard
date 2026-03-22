@@ -495,7 +495,7 @@ function daysSince(d){return Math.floor((TODAY-new Date(d))/86400000);}
 function fmt(n){return "$"+n.toLocaleString();}
 function pct(a,b){return Math.round(a/b*100);}
 var GHL_OPP="https://app.gohighlevel.com/v2/location/OkpQxkeSnF4wqI31WmUg/opportunities/list/";
-function ghlLink(id){return "<td><a href='"+GHL_OPP+id+"?tab=Opportunity+Details' target='_blank' style='color:var(--gold);font-size:10px;font-family:DM Mono,monospace;text-decoration:none'>&nearr; GHL</a></td>";}
+function ghlLink(id){return "<td><a href='"+GHL_OPP+id+"?tab=Opportunity+Details' target='_blank' class='badge gold' style='text-decoration:none'>&nearr; GHL</a></td>";}
 
 // Active crew filter
 var activeCrew = "all";
