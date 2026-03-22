@@ -163,12 +163,19 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 </head>
 <body>
 <script>
-// Hide nav when ?embed= param OR when inside an iFrame
+// Hide nav for embed — check param, iFrame, and referrer
 (function() {
   var params = new URLSearchParams(location.search);
-  var isEmbed = params.get('embed') || (window.self !== window.top);
+  var isEmbed = params.get('embed') 
+    || (window.self !== window.top)
+    || document.referrer.includes('gohighlevel.com')
+    || document.referrer.includes('leadconnectorhq.com');
   if (isEmbed) {
     document.documentElement.classList.add('embed-mode');
+    // Belt and suspenders: also set inline style immediately
+    var style = document.createElement('style');
+    style.textContent = '.nav { display: none !important; } .dashboard { padding-top: 8px !important; }';
+    document.head.appendChild(style);
   }
 })();
 </script>
