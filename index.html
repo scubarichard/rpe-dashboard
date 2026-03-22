@@ -163,12 +163,11 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 </head>
 <body>
 <script>
-// Detect ?embed= param and hide nav immediately (no flash)
+// Hide nav when ?embed= param OR when inside an iFrame
 (function() {
   var params = new URLSearchParams(location.search);
-  var embed = params.get('embed');
-  if (embed) {
-    // Add class to html element BEFORE render so nav never shows
+  var isEmbed = params.get('embed') || (window.self !== window.top);
+  if (isEmbed) {
     document.documentElement.classList.add('embed-mode');
   }
 })();
