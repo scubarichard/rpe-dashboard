@@ -163,15 +163,15 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 </head>
 <body>
 <script>
-// Detect if running inside an iFrame (GHL dashboard)
-if (window.self !== window.top) {
-  document.documentElement.style.cssText = 'height:100%;overflow:hidden';
-  document.addEventListener('DOMContentLoaded', function() {
-    document.body.classList.add('iframe-mode');
-    // Remove any fixed max-widths
-    document.body.style.cssText = 'width:100%;min-height:100vh;overflow-y:auto;';
-  });
-}
+// Detect ?embed= param and hide nav immediately (no flash)
+(function() {
+  var params = new URLSearchParams(location.search);
+  var embed = params.get('embed');
+  if (embed) {
+    // Add class to html element BEFORE render so nav never shows
+    document.documentElement.classList.add('embed-mode');
+  }
+})();
 </script>
 
 <nav class="nav">
@@ -542,18 +542,11 @@ function filteredJobs(){
 
 // ── Show/hide view ──────────────────────────────────────
 var view = new URLSearchParams(location.search).get("view")||"ceo";
-var embed = new URLSearchParams(location.search).get("embed");
+var embed = document.documentElement.classList.contains('embed-mode');
 document.getElementById("view-"+view).className="view active";
 document.getElementById("tab-"+view).className="active";
 
-// Hide nav when ?embed=ceo/gm/cfo is set (GHL dashboard mode)
-if (embed) {
-  var nav = document.querySelector('.nav');
-  if (nav) nav.style.display = 'none';
-  // Also hide date toggle bar border top gap
-  var firstSection = document.querySelector('.dashboard');
-  if (firstSection) firstSection.style.paddingTop = '8px';
-}
+// Nav hidden via CSS class set in <head> — see embed-mode above
 
 // ── Sovereign Banner ────────────────────────────────────
 (function(){
