@@ -542,8 +542,18 @@ function filteredJobs(){
 
 // ── Show/hide view ──────────────────────────────────────
 var view = new URLSearchParams(location.search).get("view")||"ceo";
+var embed = new URLSearchParams(location.search).get("embed");
 document.getElementById("view-"+view).className="view active";
 document.getElementById("tab-"+view).className="active";
+
+// Hide nav when ?embed=ceo/gm/cfo is set (GHL dashboard mode)
+if (embed) {
+  var nav = document.querySelector('.nav');
+  if (nav) nav.style.display = 'none';
+  // Also hide date toggle bar border top gap
+  var firstSection = document.querySelector('.dashboard');
+  if (firstSection) firstSection.style.paddingTop = '8px';
+}
 
 // ── Sovereign Banner ────────────────────────────────────
 (function(){
