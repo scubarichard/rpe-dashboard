@@ -458,6 +458,201 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 <!-- ═══════════════════════════════════════════════════════ CFO VIEW -->
 <div id="view-cfo" class="view">
 <div class="dashboard">
+  ﻿<!DOCTYPE html>
+<html>
+<head>
+<script>
+// Inject nav-hiding CSS synchronously before any rendering
+// ?noNav=1 = GHL embed mode (nav hidden, view locked)
+if (new URLSearchParams(location.search).get('noNav')) {
+  document.write('<style>.nav{display:none!important}.dashboard{padding-top:8px!important}</style>');
+}
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+// ── Change Orders (from ClickUp via Google Sheet sync) ──
+var CHANGE_ORDERS = [
+  {
+    task_id: "86e0ccx58",
+    job_name: "Wilkins Game Room - Subfloor Repair",
+    opportunity_id: "psPkH0gBqYdZ0ZJ3R5lR",
+    contract_value: 1200,
+    status: "complete",
+    crew_assigned: "",
+    description: "Subfloor repair required before LVP install",
+    date_created: "2026-03-15",
+    date_updated: "2026-03-15",
+    url: "https://app.clickup.com/t/86e0ccx58"
+  }
+];
+
+(function buildCOTable(){
+  var tbody = document.getElementById("gm-co-body");
+  if (!tbody) return;
+  if (!CHANGE_ORDERS.length) {
+    tbody.innerHTML = "<tr><td colspan='6' style='padding:12px;color:var(--green);font-size:12px;text-align:center'>&#x2714; No change orders logged</td></tr>";
+    return;
+  }
+  var totalValue = CHANGE_ORDERS.reduce(function(s,co){return s + (co.contract_value||0);}, 0);
+  
+  tbody.innerHTML = CHANGE_ORDERS.map(function(co){
+    var statusClass = co.status === "complete" ? "green" : co.status === "labor alert" ? "red" : "gold";
+    var statusLabel = co.status === "complete" ? "Approved" : co.status === "labor alert" ? "Labor Alert" : "Pending";
+    // Find matching job name from JOBS array
+    var job = JOBS.find(function(j){return j.id === co.opportunity_id;});
+    var displayJob = job ? job.client + " — " + job.name : co.job_name;
+    return "<tr>" +
+      "<td><span style='font-size:11px;color:var(--muted)'>" + displayJob + "</span></td>" +
+      "<td><strong style='font-size:12px'>" + co.job_name + "</strong>" + (co.description ? "<br><span style='font-size:10px;color:var(--muted)'>" + co.description + "</span>" : "") + "</td>" +
+      "<td><strong style='color:var(--gold)'>" + fmt(co.contract_value) + "</strong></td>" +
+      "<td><span class='badge " + statusClass + "'>" + statusLabel + "</span></td>" +
+      "<td style='font-size:11px;color:var(--muted)'>" + co.date_created + "</td>" +
+      "<td><a href='" + co.url + "' target='_blank' style='font-size:10px;color:var(--gold);text-decoration:none;font-family:\"DM Mono\",monospace'>&#x2197; View</a></td>" +
+    "</tr>";
+  }).join("") +
+  "<tr style='background:#f8f8f8'><td colspan='2' style='font-size:10px;font-family:\"DM Mono\",monospace;color:var(--muted);padding:8px 10px'>TOTAL SCOPE ADDITIONS</td><td><strong style='color:var(--red)'>" + fmt(totalValue) + "</strong></td><td colspan='3'></td></tr>";
+})();
+
+</script>
+<style>
+:root{--bg:#f4f4f4;--surface:#fff;--border:#e0e0e0;--gold:#C2A04A;--text:#1a1a1a;--muted:#888;--green:#2a7a4a;--red:#c0392b;--orange:#c07a2a;--green-bg:rgba(42,122,74,0.08);--red-bg:rgba(192,57,43,0.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;width:100%}
+.view.active{min-height:100vh}
+body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100vh}
+.nav{display:flex;align-items:center;gap:4px;padding:10px 16px;background:#fff;border-bottom:3px solid var(--gold);box-shadow:0 2px 8px rgba(0,0,0,0.06);position:sticky;top:0;z-index:100}
+.nav-brand{display:flex;flex-direction:column;margin-right:20px}
+.nav-brand-name{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
+.nav-brand-sub{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-family:"DM Mono",monospace}
+.nav a{padding:6px 14px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.nav a.active{color:#fff;background:var(--gold)}
+.view{display:none}.view.active{display:block}
+.dashboard{padding:16px}
+
+/* Sovereign Banner */
+.sovereign-banner{padding:10px 16px;font-size:13px;font-weight:600;text-align:center;letter-spacing:.04em;border-bottom:1px solid transparent}
+.sovereign-banner.win{background:rgba(42,122,74,0.12);color:var(--green);border-color:rgba(42,122,74,0.2)}
+.sovereign-banner.watch{background:rgba(192,57,43,0.08);color:var(--red);border-color:rgba(192,57,43,0.15)}
+
+/* Date Toggles */
+.date-toggle-bar{display:flex;align-items:center;gap:6px;margin-bottom:14px}
+.date-toggle-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-right:4px}
+.date-btn{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:10px;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.06em;font-family:"DM Sans",sans-serif}
+.date-btn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+
+/* Crew Filter */
+.crew-filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 14px}
+.crew-filter-bar label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace}
+.crew-filter-bar select{border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-family:"DM Sans",sans-serif;color:var(--text);background:#fff;cursor:pointer}
+
+.section-header{background:var(--gold);color:#fff;padding:8px 14px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;margin-top:16px}
+.section-header:first-child{margin-top:0}
+.grid{display:grid;gap:10px}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05);cursor:pointer;transition:box-shadow .15s,transform .1s}
+.card:hover{box-shadow:0 4px 16px rgba(194,160,74,0.2);transform:translateY(-1px)}
+.card.no-click{cursor:default}.card.no-click:hover{box-shadow:0 1px 4px rgba(0,0,0,0.05);transform:none}
+
+/* Placeholder card */
+.card.placeholder{border:2px dashed var(--gold);background:rgba(194,160,74,0.02);cursor:default}
+.card.placeholder:hover{box-shadow:0 1px 4px rgba(0,0,0,0.05);transform:none}
+.placeholder-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(194,160,74,0.12);color:var(--gold);padding:3px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;font-family:"DM Mono",monospace}
+
+.card-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:8px}
+.card-hint{font-size:9px;color:var(--gold);font-family:"DM Mono",monospace;margin-bottom:6px;opacity:.8}
+.card-value{font-size:32px;font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--text)}
+.card-value.gold{color:var(--gold)}.card-value.green{color:var(--green)}.card-value.red{color:var(--red)}.card-value.orange{color:var(--orange)}.card-value.muted{color:var(--muted)}
+.card-sub{font-size:10px;color:var(--muted);margin-top:5px;font-family:"DM Mono",monospace}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.chart-card.placeholder{border:2px dashed var(--gold);background:rgba(194,160,74,0.02)}
+.chart-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:12px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-value{font-size:14px;font-weight:600;font-family:"DM Mono",monospace}
+.stat-value.green{color:var(--green)}.stat-value.red{color:var(--red)}.stat-value.orange{color:var(--orange)}
+.gauge-wrap{margin-top:10px}
+.gauge-bar{height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;margin-top:4px}
+.gauge-fill{height:100%;border-radius:4px}
+.gauge-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-family:"DM Mono",monospace;margin-top:3px}
+.ts{font-size:9px;color:var(--muted);font-family:"DM Mono",monospace;padding:12px 0 2px;text-align:right}
+
+/* Red Flag Table / Watchdog Tables */
+.flag-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.flag-table th{text-align:left;padding:7px 10px;background:#f8f8f8;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;border-bottom:2px solid var(--border)}
+.flag-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.flag-table tr:last-child td{border-bottom:none}
+.flag-table tr:hover td{background:#fafaf8}
+.flag-table .row-red td{background:var(--red-bg)}
+.flag-table .row-orange td{background:rgba(192,122,42,0.06)}
+
+/* Stall pill */
+.stall-pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;font-family:"DM Mono",monospace}
+.stall-pill.red{background:var(--red-bg);color:var(--red)}
+.stall-pill.orange{background:rgba(192,122,42,0.1);color:var(--orange)}
+.stall-pill.green{background:var(--green-bg);color:var(--green)}
+
+/* Leaderboard */
+.leaderboard{width:100%;border-collapse:collapse;font-size:12px}
+.leaderboard th{text-align:left;padding:7px 10px;background:#f8f8f8;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;border-bottom:2px solid var(--border)}
+.leaderboard td{padding:10px;border-bottom:1px solid var(--border)}
+.leaderboard tr:last-child td{border-bottom:none}
+.rank{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;font-family:"DM Mono",monospace}
+.rank.gold{background:rgba(194,160,74,0.15);color:var(--gold)}
+.rank.silver{background:#f0f0f0;color:#666}
+.rank.bronze{background:rgba(192,122,42,0.1);color:var(--orange)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:flex-end}
+.modal{background:#fff;width:480px;height:100vh;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,0.15);animation:slideIn .2s ease}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.modal-header{background:var(--gold);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1}
+.modal-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.modal-close{background:rgba(255,255,255,0.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:rgba(255,255,255,0.35)}
+.modal-body{padding:16px}
+.modal-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.modal-stat{background:#f8f8f8;border-radius:6px;padding:10px 12px}
+.modal-stat-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;margin-bottom:4px}
+.modal-stat-value{font-size:18px;font-weight:700;color:var(--text)}
+.modal-stat-value.gold{color:var(--gold)}.modal-stat-value.green{color:var(--green)}.modal-stat-value.red{color:var(--red)}.modal-stat-value.orange{color:var(--orange)}
+.job-table{width:100%;border-collapse:collapse;font-size:12px}
+.job-table th{text-align:left;padding:8px 10px;background:#f8f8f8;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:"DM Mono",monospace;border-bottom:2px solid var(--border)}
+.job-table td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top}
+.job-table tr:last-child td{border-bottom:none}
+.job-table tr:hover td{background:#fafaf8}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.badge.green{background:var(--green-bg);color:var(--green)}.badge.red{background:var(--red-bg);color:var(--red)}.badge.orange{background:rgba(192,122,42,0.08);color:var(--orange)}.badge.gold{background:rgba(194,160,74,0.1);color:var(--gold)}
+</style>
+</head>
+<body>
+<script>
+// Hide nav for embed — check param, iFrame, and referrer
+(function() {
+  var params = new URLSearchParams(location.search);
+  var isEmbed = params.get('embed') 
+    || (window.self !== window.top)
+    || document.referrer.includes('gohighlevel.com')
+    || document.referrer.includes('leadconnectorhq.com');
+  if (isEmbed) {
+    document.documentElement.classList.add('embed-mode');
+    // Belt and suspenders: also set inline style immediately
+    var style = document.createElement('style');
+    style.textContent = '.nav { display: none !important; } .dashboard { padding-top: 8px !important; }';
+    document.head.appendChild(style);
+  }
+})();
+</script>
+
+
+
+<!-- SOVEREIGN BANNER -->
+<div id="sovereign-banner" class="sovereign-banner"></div>
   <div class="section-header">Tier 1 &mdash; Financial Pulse</div>
   <div class="grid grid-2">
     <div class="card" onclick="showModal('pipeline')">
