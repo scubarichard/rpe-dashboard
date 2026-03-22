@@ -420,19 +420,19 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
     <div class="card placeholder no-click">
       <div class="placeholder-badge">&#x23F3; Awaiting Live Data</div>
       <div class="card-label">&#x1F4F7; Missing Photo Tracker</div>
-      <div class="card-value muted" style="font-size:24px">&#8212; &#8212;</div>
+      <div class="card-value muted" style="font-size:14px;letter-spacing:.08em">AWAITING LIVE DATA</div>
       <div class="card-sub">Jobs marked complete, no photos — needs ClickUp</div>
     </div>
     <div class="card placeholder no-click">
       <div class="placeholder-badge">&#x23F3; Awaiting Live Data</div>
       <div class="card-label">&#x270F; Sign-Off Completion Rate</div>
-      <div class="card-value muted" style="font-size:24px">&#8212; &#8212;</div>
+      <div class="card-value muted" style="font-size:14px;letter-spacing:.08em">AWAITING LIVE DATA</div>
       <div class="card-sub">% jobs with digital customer sign-off</div>
     </div>
     <div class="card placeholder no-click">
       <div class="placeholder-badge">&#x23F3; Awaiting Live Data</div>
       <div class="card-label">&#x1F504; Return-Trip / Go-Back Log</div>
-      <div class="card-value muted" style="font-size:24px">&#8212; &#8212;</div>
+      <div class="card-value muted" style="font-size:14px;letter-spacing:.08em">AWAITING LIVE DATA</div>
       <div class="card-sub">Jobs requiring a second trip (kills 15% target)</div>
     </div>
   </div>
@@ -669,19 +669,19 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
     <div class="card placeholder no-click">
       <div class="placeholder-badge">&#x23F3; Awaiting Live Data</div>
       <div class="card-label">&#x1F4F7; Missing Photo Tracker</div>
-      <div class="card-value muted" style="font-size:24px">&#8212; &#8212;</div>
+      <div class="card-value muted" style="font-size:14px;letter-spacing:.08em">AWAITING LIVE DATA</div>
       <div class="card-sub">Jobs marked complete, no photos — needs ClickUp</div>
     </div>
     <div class="card placeholder no-click">
       <div class="placeholder-badge">&#x23F3; Awaiting Live Data</div>
       <div class="card-label">&#x270F; Sign-Off Completion Rate</div>
-      <div class="card-value muted" style="font-size:24px">&#8212; &#8212;</div>
+      <div class="card-value muted" style="font-size:14px;letter-spacing:.08em">AWAITING LIVE DATA</div>
       <div class="card-sub">% jobs with digital customer sign-off</div>
     </div>
     <div class="card placeholder no-click">
       <div class="placeholder-badge">&#x23F3; Awaiting Live Data</div>
       <div class="card-label">&#x1F504; Return-Trip / Go-Back Log</div>
-      <div class="card-value muted" style="font-size:24px">&#8212; &#8212;</div>
+      <div class="card-value muted" style="font-size:14px;letter-spacing:.08em">AWAITING LIVE DATA</div>
       <div class="card-sub">Jobs requiring a second trip (kills 15% target)</div>
     </div>
   </div>
@@ -978,7 +978,7 @@ var JOBS = [
   {id:"sNA4UhByrXeJWUtFebOr",name:"Perry Studio Reno",client:"Tyler Perry",value:8500,labor_budget:3200,labor_cost:1700,margin:42,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-03-20",net_profit:1870,crew:"Crew C",product:"Carpet"}
 ];
 
-var TODAY = new Date("2026-03-21");
+var TODAY = new Date();
 function daysSince(d){return Math.floor((TODAY-new Date(d))/86400000);}
 function fmt(n){return "$"+n.toLocaleString();}
 function pct(a,b){return Math.round(a/b*100);}
@@ -996,10 +996,6 @@ var view = new URLSearchParams(location.search).get("view")||"ceo";
 var embed = document.documentElement.classList.contains('embed-mode');
 document.getElementById("view-"+view).className="view active";
 document.getElementById("tab-"+view).className="active";
-// Auto-select "Today" period on load
-document.addEventListener("DOMContentLoaded", function() {
-  var todayBtn = document.querySelector(".date-btn"); if (todayBtn && typeof setDate === "function") { setDate(todayBtn, "today"); }
-});
 
 // Nav hidden via CSS class set in <head> — see embed-mode above
 
@@ -1027,6 +1023,7 @@ function setDate(btn, period) {
   btn.className = "date-btn active";
   activePeriod = period;
   refreshCEOMetrics();
+  initCFOChart();
 }
 
 function getPeriodJobs(period) {
@@ -1423,13 +1420,17 @@ if(view==="gm"){
   });
 }
 
-if(view==="cfo"){
-  new Chart(document.getElementById("cfo-labor-chart"),{
+function initCFOChart(){
+  var canvas = document.getElementById("cfo-labor-chart");
+  if(!canvas) return;
+  if(canvas._cfoChart) canvas._cfoChart.destroy();
+  canvas._cfoChart = new Chart(canvas,{
     type:"bar",
     data:{labels:["Labor Budget","Labor Cost","Variance"],datasets:[{data:[57258,37855,19403],backgroundColor:[gold,orange,green],borderRadius:6}]},
     options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return "$"+Math.round(v/1000)+"K";}},grid:{color:"#f0f0f0"}},x:{grid:{display:false}}}}
   });
 }
+initCFOChart();
 
 // ── Modal ────────────────────────────────────────────────
 function openModal(title,bodyHtml){
@@ -1576,6 +1577,9 @@ var CHANGE_ORDERS = [
   }).join("") +
   "<tr style='background:#f8f8f8'><td colspan='2' style='font-size:10px;font-family:\"DM Mono\",monospace;color:var(--muted);padding:8px 10px'>TOTAL SCOPE ADDITIONS</td><td><strong style='color:var(--red)'>" + fmt(totalValue) + "</strong></td><td colspan='3'></td></tr>";
 })();
+
+// Auto-select "Today" on load — runs after all functions are defined
+setDate(document.querySelector('.date-btn'), 'today');
 
 </script>
 </body>
@@ -1662,7 +1666,7 @@ var JOBS = [
   {id:"sNA4UhByrXeJWUtFebOr",name:"Perry Studio Reno",client:"Tyler Perry",value:8500,labor_budget:3200,labor_cost:1700,margin:42,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-03-20",net_profit:1870,crew:"Crew C",product:"Carpet"}
 ];
 
-var TODAY = new Date("2026-03-21");
+var TODAY = new Date();
 function daysSince(d){return Math.floor((TODAY-new Date(d))/86400000);}
 function fmt(n){return "$"+n.toLocaleString();}
 function pct(a,b){return Math.round(a/b*100);}
@@ -1680,10 +1684,6 @@ var view = new URLSearchParams(location.search).get("view")||"ceo";
 var embed = document.documentElement.classList.contains('embed-mode');
 document.getElementById("view-"+view).className="view active";
 document.getElementById("tab-"+view).className="active";
-// Auto-select "Today" period on load
-document.addEventListener("DOMContentLoaded", function() {
-  var todayBtn = document.querySelector(".date-btn"); if (todayBtn && typeof setDate === "function") { setDate(todayBtn, "today"); }
-});
 
 // Nav hidden via CSS class set in <head> — see embed-mode above
 
@@ -1711,6 +1711,7 @@ function setDate(btn, period) {
   btn.className = "date-btn active";
   activePeriod = period;
   refreshCEOMetrics();
+  initCFOChart();
 }
 
 function getPeriodJobs(period) {
@@ -2107,13 +2108,17 @@ if(view==="gm"){
   });
 }
 
-if(view==="cfo"){
-  new Chart(document.getElementById("cfo-labor-chart"),{
+function initCFOChart(){
+  var canvas = document.getElementById("cfo-labor-chart");
+  if(!canvas) return;
+  if(canvas._cfoChart) canvas._cfoChart.destroy();
+  canvas._cfoChart = new Chart(canvas,{
     type:"bar",
     data:{labels:["Labor Budget","Labor Cost","Variance"],datasets:[{data:[57258,37855,19403],backgroundColor:[gold,orange,green],borderRadius:6}]},
     options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return "$"+Math.round(v/1000)+"K";}},grid:{color:"#f0f0f0"}},x:{grid:{display:false}}}}
   });
 }
+initCFOChart();
 
 // ── Modal ────────────────────────────────────────────────
 function openModal(title,bodyHtml){
@@ -2260,6 +2265,9 @@ var CHANGE_ORDERS = [
   }).join("") +
   "<tr style='background:#f8f8f8'><td colspan='2' style='font-size:10px;font-family:\"DM Mono\",monospace;color:var(--muted);padding:8px 10px'>TOTAL SCOPE ADDITIONS</td><td><strong style='color:var(--red)'>" + fmt(totalValue) + "</strong></td><td colspan='3'></td></tr>";
 })();
+
+// Auto-select "Today" on load — runs after all functions are defined
+setDate(document.querySelector('.date-btn'), 'today');
 
 </script>
 </body>
