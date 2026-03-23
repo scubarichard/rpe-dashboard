@@ -1072,8 +1072,8 @@ body {
       <div class="card" onclick="showModal('margin')">
         <div class="card-hint">&#x2197; See by job</div>
         <div class="card-label">Avg Gross Margin</div>
-        <div class="card-value green" style="font-size:22px">40.1%</div>
-        <div class="card-sub">Target: 40%+</div>
+        <div id="cfo-margin-val" class="card-value green" style="font-size:22px">—</div>
+        <div id="cfo-margin-indicator" class="card-sub">Target: 40%+</div>
       </div>
     </div>
   </div>
@@ -1680,11 +1680,30 @@ function initCFOChart(){
   if(!canvas) return;
   var existingCfo = Chart.getChart(canvas);
   if(existingCfo) existingCfo.destroy();
+  var cfoLaborBudget = JOBS.reduce(function(s,j){return s+(j.labor_budget||0);},0);
+  var cfoLaborCost = JOBS.reduce(function(s,j){return s+(j.labor_cost||0);},0);
+  var cfoVariance = cfoLaborBudget - cfoLaborCost;
   new Chart(canvas,{
     type:"bar",
-    data:{labels:["Labor Budget","Labor Cost","Variance"],datasets:[{data:[57258,37855,19403],backgroundColor:[gold,orange,green],borderRadius:6}]},
+    data:{labels:["Labor Budget","Labor Cost","Variance"],datasets:[{data:[cfoLaborBudget,cfoLaborCost,cfoVariance],backgroundColor:[gold,orange,green],borderRadius:6}]},
     options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return "$"+Math.round(v/1000)+"K";}},grid:{color:"#f0f0f0"}},x:{grid:{display:false}}}}
   });
+
+  // ── CFO Avg Gross Margin indicator ──
+  var cfoMarginEl = document.getElementById('cfo-margin-val');
+  var cfoMarginInd = document.getElementById('cfo-margin-indicator');
+  if (cfoMarginEl) {
+    var cfoAvgM = JOBS.length === 0 ? 0 : JOBS.reduce(function(s,j){return s+j.margin;},0)/JOBS.length;
+    var onTarget = cfoAvgM >= CONFIG.MARGIN_TARGET;
+    cfoMarginEl.textContent = cfoAvgM.toFixed(1) + '%';
+    cfoMarginEl.className = 'card-value ' + (onTarget ? 'green' : 'red') + '';
+    cfoMarginEl.style.fontSize = '22px';
+    if (cfoMarginInd) {
+      var dotColor = onTarget ? 'var(--green)' : 'var(--red)';
+      var dotLabel = onTarget ? '&#x25B2; On Target' : '&#x25BC; Below Target';
+      cfoMarginInd.innerHTML = '<span style="color:'+dotColor+';font-size:11px;font-weight:600">&#x25CF; '+dotLabel+'</span>';
+    }
+  }
 }
 initCFOChart();
 
