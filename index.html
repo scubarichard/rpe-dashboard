@@ -861,10 +861,10 @@ body {
     </div>
     <div class="card no-click">
       <div class="card-label">Labor Cap Tracker</div>
-      <div class="card-value green">66%</div>
-      <div class="card-sub">Target: 15% max of revenue</div>
+      <div class="card-value green" id="ceo-laborcap-val">—</div>
+      <div class="card-sub" id="ceo-laborcap-sub">Target: 15% max of revenue</div>
       <div class="gauge-wrap">
-        <div class="gauge-bar"><div class="gauge-fill" style="width:100%;background:var(--green)"></div></div>
+        <div class="gauge-bar"><div id="ceo-laborcap-fill" class="gauge-fill" style="width:0%;background:var(--green)"></div></div>
         <div class="gauge-labels"><span>0%</span><span>15%</span><span>30%</span></div>
       </div>
     </div>
@@ -1413,6 +1413,24 @@ function refreshCEOMetrics() {
       var rpePct = Math.min(100, Math.round(rpeVal / CONFIG.RPE_GAUGE_MAX * 100));
       gaugeFill.style.width = rpePct + '%';
       gaugeFill.style.background = rpeVal >= CONFIG.RPE_TARGET ? 'var(--green)' : rpeVal >= CONFIG.RPE_WARNING ? 'var(--orange)' : 'var(--red)';
+    }
+  }
+
+  // ── Labor Cap Tracker ──
+  var lcTotalLabor = JOBS.reduce(function(s,j){return s+(j.labor_cost||0);},0);
+  var lcTotalValue = JOBS.reduce(function(s,j){return s+(j.value||0);},0);
+  var lcPct = lcTotalValue === 0 ? 0 : parseFloat((lcTotalLabor/lcTotalValue*100).toFixed(1));
+  var lcEl = document.getElementById('ceo-laborcap-val');
+  var lcSub = document.getElementById('ceo-laborcap-sub');
+  var lcFill = document.getElementById('ceo-laborcap-fill');
+  if (lcEl) {
+    lcEl.textContent = lcPct + '%';
+    var lcColor = lcPct > CONFIG.LABOR_CAP_PCT ? 'red' : lcPct > CONFIG.LABOR_WARNING_PCT ? 'orange' : 'green';
+    lcEl.className = 'card-value ' + lcColor;
+    if (lcSub) lcSub.textContent = fmt(lcTotalLabor) + ' paid / ' + fmt(lcTotalValue) + ' contract — target 15% max';
+    if (lcFill) {
+      lcFill.style.width = Math.min(100, Math.round(lcPct / 30 * 100)) + '%';
+      lcFill.style.background = 'var(--' + lcColor + ')';
     }
   }
 
