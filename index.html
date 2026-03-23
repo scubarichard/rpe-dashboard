@@ -255,7 +255,7 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
   <div class="chart-card no-click" style="margin-bottom:0">
     <div class="chart-title">&#x1F6A9; Red Flag Table &mdash; Top 3 Lowest Margin Jobs</div>
     <table class="flag-table" id="ceo-redflag-table">
-      <thead><tr><th>Job</th><th>Client</th><th>Contract</th><th>Margin</th><th>Days Idle</th><th>Action</th></tr></thead>
+      <thead><tr><th>Job</th><th>Client</th><th>Contract</th><th>Margin</th><th>Days Idle</th><th>Action</th><th></th></tr></thead>
       <tbody id="ceo-redflag-body"></tbody>
     </table>
   </div>
@@ -338,7 +338,7 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
   <div class="chart-card no-click" style="margin-bottom:10px">
     <div class="chart-title">&#x1F6A7; Labor Cap Watchdog &mdash; 15% Max per Job <span style="color:var(--orange)">(yellow = approaching)</span> <span style="color:var(--red)">(red = over)</span></div>
     <table class="flag-table" id="gm-labor-table">
-      <thead><tr><th>Job</th><th>Crew</th><th>Contract</th><th>Labor Budget</th><th>Labor Cost</th><th>Labor %</th><th>Status</th></tr></thead>
+      <thead><tr><th>Job</th><th>Crew</th><th>Contract</th><th>Labor Budget</th><th>Labor Cost</th><th>Labor %</th><th>Status</th><th></th></tr></thead>
       <tbody id="gm-labor-body"></tbody>
     </table>
   </div>
@@ -347,7 +347,7 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
   <div class="chart-card no-click" style="margin-bottom:10px">
     <div class="chart-title">&#x1F4CA; Margin Alert Table &mdash; Jobs Projected Below 40%</div>
     <table class="flag-table" id="gm-margin-table">
-      <thead><tr><th>Job</th><th>Crew</th><th>Contract</th><th>Margin</th><th>Days Idle</th><th>Alert</th></tr></thead>
+      <thead><tr><th>Job</th><th>Crew</th><th>Contract</th><th>Margin</th><th>Days Idle</th><th>Alert</th><th></th></tr></thead>
       <tbody id="gm-margin-body"></tbody>
     </table>
   </div>
@@ -494,6 +494,8 @@ var TODAY = new Date();
 function daysSince(d){return Math.floor((TODAY-new Date(d))/86400000);}
 function fmt(n){return "$"+n.toLocaleString();}
 function pct(a,b){return Math.round(a/b*100);}
+var GHL_OPP="https://app.gohighlevel.com/v2/location/OkpQxkeSnF4wqI31WmUg/opportunities/list/";
+function ghlLink(id){return "<td><a href='"+GHL_OPP+id+"?tab=Opportunity+Details' target='_blank' class='badge gold' style='text-decoration:none'>&nearr; GHL</a></td>";}
 
 // Active crew filter
 var activeCrew = "all";
@@ -511,12 +513,13 @@ var tabEl = document.getElementById("tab-"+view); if(tabEl) tabEl.className="act
 
 // Nav hidden via CSS class set in <head> — see embed-mode above
 
-// ── Sovereign Banner ────────────────────────────────────
+// ── Sovereign Banner (CEO + GM views) ───────────────────
 (function(){
+  var banner = document.getElementById("sovereign-banner");
+  if(view !== "ceo" && view !== "gm"){ banner.style.display="none"; return; }
   var openJobs = JOBS.filter(function(j){return j.status==="open";});
   var avgM = openJobs.reduce(function(s,j){return s+j.margin;},0)/openJobs.length;
   var stuck = JOBS.filter(function(j){return j.status==="open"&&daysSince(j.last_updated)>=3;});
-  var banner = document.getElementById("sovereign-banner");
   if(avgM>=40 && stuck.length<=2){
     banner.className="sovereign-banner win";
     banner.textContent="&#x2728; The System is Winning. Avg margin "+avgM.toFixed(1)+"% — above target. Enjoy your day.";
@@ -807,7 +810,7 @@ function filterByCrew(val){
     var days=daysSince(j.last_updated);
     var rowClass=j.margin<35?"row-red":j.margin<40?"row-orange":"";
     var stallClass=days>6?"red":days>3?"orange":"green";
-    tbody.innerHTML+="<tr class='"+rowClass+"'><td><strong>"+j.name+"</strong></td><td style='color:var(--muted);font-size:11px'>"+j.client+"</td><td>"+fmt(j.value)+"</td><td><span class='badge "+(j.margin>=40?"green":"red")+"'>"+j.margin+"%</span></td><td><span class='stall-pill "+stallClass+"'>"+days+"d</span></td><td style='font-size:11px;color:var(--red)'>"+( j.margin<40?"Review pricing":"Monitor")+"</td></tr>";
+    tbody.innerHTML+="<tr class='"+rowClass+"'><td><strong>"+j.name+"</strong></td><td style='color:var(--muted);font-size:11px'>"+j.client+"</td><td>"+fmt(j.value)+"</td><td><span class='badge "+(j.margin>=40?"green":"red")+"'>"+j.margin+"%</span></td><td><span class='stall-pill "+stallClass+"'>"+days+"d</span></td><td style='font-size:11px;color:var(--red)'>"+( j.margin<40?"Review pricing":"Monitor")+"</td>"+ghlLink(j.id)+"</tr>";
   });
 })();
 
@@ -836,7 +839,7 @@ function buildGMTables(){
     var statusClass=laborPct>15?"red":laborPct>12?"orange":"green";
     var statusLabel=laborPct>15?"OVER CAP":laborPct>12?"Approaching":"OK";
     var rowClass=laborPct>15?"row-red":laborPct>12?"row-orange":"";
-    lbody.innerHTML+="<tr class='"+rowClass+"'><td><strong style='font-size:11px'>"+j.name+"</strong></td><td style='font-size:11px;color:var(--muted)'>"+j.crew+"</td><td>"+fmt(j.value)+"</td><td>"+fmt(j.labor_budget)+"</td><td>"+fmt(j.labor_cost)+"</td><td><strong>"+laborPct+"%</strong></td><td><span class='badge "+statusClass+"'>"+statusLabel+"</span></td></tr>";
+    lbody.innerHTML+="<tr class='"+rowClass+"'><td><strong style='font-size:11px'>"+j.name+"</strong></td><td style='font-size:11px;color:var(--muted)'>"+j.crew+"</td><td>"+fmt(j.value)+"</td><td>"+fmt(j.labor_budget)+"</td><td>"+fmt(j.labor_cost)+"</td><td><strong>"+laborPct+"%</strong></td><td><span class='badge "+statusClass+"'>"+statusLabel+"</span></td>"+ghlLink(j.id)+"</tr>";
   });
 
   // Margin Alert
@@ -844,12 +847,12 @@ function buildGMTables(){
   mbody.innerHTML="";
   var below=jobs.filter(function(j){return j.margin<40;});
   if(below.length===0){
-    mbody.innerHTML="<tr><td colspan='6' style='padding:12px;color:var(--green);font-size:12px;text-align:center'>&#x2714; All jobs at or above 40% margin</td></tr>";
+    mbody.innerHTML="<tr><td colspan='7' style='padding:12px;color:var(--green);font-size:12px;text-align:center'>&#x2714; All jobs at or above 40% margin</td></tr>";
   } else {
     below.sort(function(a,b){return a.margin-b.margin;}).forEach(function(j){
       var days=daysSince(j.last_updated);
       var stallClass=days>6?"red":days>3?"orange":"green";
-      mbody.innerHTML+="<tr class='row-red'><td><strong style='font-size:11px'>"+j.name+"</strong></td><td style='font-size:11px;color:var(--muted)'>"+j.crew+"</td><td>"+fmt(j.value)+"</td><td><span class='badge red'>"+j.margin+"%</span></td><td><span class='stall-pill "+stallClass+"'>"+days+"d</span></td><td style='font-size:11px;color:var(--red)'>Review material &amp; labor</td></tr>";
+      mbody.innerHTML+="<tr class='row-red'><td><strong style='font-size:11px'>"+j.name+"</strong></td><td style='font-size:11px;color:var(--muted)'>"+j.crew+"</td><td>"+fmt(j.value)+"</td><td><span class='badge red'>"+j.margin+"%</span></td><td><span class='stall-pill "+stallClass+"'>"+days+"d</span></td><td style='font-size:11px;color:var(--red)'>Review material &amp; labor</td>"+ghlLink(j.id)+"</tr>";
     });
   }
 }
