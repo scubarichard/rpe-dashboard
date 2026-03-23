@@ -147,12 +147,6 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 
 
 
-<!-- LOADING STATE -->
-<div id="loading-overlay" style="display:flex;align-items:center;justify-content:center;min-height:60vh;flex-direction:column;gap:12px">
-  <div style="font-size:14px;font-weight:600;color:var(--gold);letter-spacing:.06em;text-transform:uppercase">Loading Dashboard...</div>
-  <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">Fetching live data from GHL</div>
-</div>
-
 <!-- SOVEREIGN BANNER -->
 <div id="sovereign-banner" class="sovereign-banner"></div>
 
@@ -483,7 +477,18 @@ body{background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min
 </div>
 
 <script>
-var JOBS = [];
+var JOBS = [
+  {id:"TgqCHz7UnC4JzqIkAMwh",name:"Jones Trophy Room",client:"Chipper Jones",value:31500,labor_budget:11025,labor_cost:6300,margin:45,stage:"Ready for Production",status:"won",last_updated:"2026-02-08",date_created:"2026-01-23",net_profit:7875,crew:"Crew A",product:"Hardwood"},
+  {id:"psPkH0gBqYdZ0ZJ3R5lR",name:"Wilkins Game Room",client:"Dominique Wilkins",value:22400,labor_budget:9408,labor_cost:5600,margin:42,stage:"Margin Review",status:"open",last_updated:"2026-03-15",date_created:"2026-01-23",net_profit:3808,crew:"Crew A",product:"LVP"},
+  {id:"pBbnH5nM7zfahWqUM43L",name:"Mike Barbershop",client:"Killer Mike",value:8400,labor_budget:2940,labor_cost:2100,margin:40,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-01-23",net_profit:1260,crew:"Crew B",product:"Carpet"},
+  {id:"1APhpBaopUfaBMPO0B70",name:"Brown Master Bath",client:"Monica Brown",value:9900,labor_budget:3465,labor_cost:2475,margin:40,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-01-23",net_profit:1485,crew:"Crew B",product:"Tile"},
+  {id:"qMDSMfEulCfow8GxG4YU",name:"Benjamin Recording Studio",client:"Andre Benjamin",value:14400,labor_budget:5760,labor_cost:4320,margin:30,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-01-23",net_profit:0,crew:"Crew C",product:"LVP"},
+  {id:"vREyxAkQ53WPADGq2Nk4",name:"Foxworthy Whole House",client:"Jeff Foxworthy",value:12600,labor_budget:4200,labor_cost:3150,margin:45,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-01-23",net_profit:2520,crew:"Crew C",product:"Hardwood"},
+  {id:"Y3RWKZSHYUHMV0IJtMOU",name:"Roberts Kitchen Remodel",client:"Julia Roberts",value:9500,labor_budget:3800,labor_cost:2850,margin:30,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-01-23",net_profit:0,crew:"Crew A",product:"Tile"},
+  {id:"3Q4zNojKGptf4yDXA1sL",name:"Raymond Main Level",client:"Usher Raymond",value:25600,labor_budget:8960,labor_cost:5760,margin:42,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-03-21",net_profit:4992,crew:"Crew B",product:"Hardwood"},
+  {id:"JrfnRAysIgcjOQv23XQs",name:"Speed Lead Test",client:"Ludacris Bridges",value:11700,labor_budget:4500,labor_cost:3600,margin:45,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-03-21",net_profit:1665,crew:"Crew B",product:"LVP"},
+  {id:"sNA4UhByrXeJWUtFebOr",name:"Perry Studio Reno",client:"Tyler Perry",value:8500,labor_budget:3200,labor_cost:1700,margin:42,stage:"New Lead",status:"open",last_updated:"2026-03-15",date_created:"2026-03-20",net_profit:1870,crew:"Crew C",product:"Carpet"}
+];
 
 var TODAY = new Date();
 function daysSince(d){return Math.floor((TODAY-new Date(d))/86400000);}
@@ -507,9 +512,6 @@ document.getElementById("view-"+view).className="view active";
 var tabEl = document.getElementById("tab-"+view); if(tabEl) tabEl.className="active";
 
 // Nav hidden via CSS class set in <head> — see embed-mode above
-
-function initDashboard(){
-document.getElementById("loading-overlay").style.display="none";
 
 // ── Sovereign Banner (CEO + GM views) ───────────────────
 (function(){
@@ -1093,21 +1095,6 @@ var CHANGE_ORDERS = [
 
 // Auto-select "Today" on load — runs after all functions are defined
 setDate(document.querySelector('.date-btn'), 'today');
-
-} // end initDashboard
-
-// ── Fetch live data from n8n v11 endpoint ───────────────
-fetch("https://n8n.dakona.net/webhook/rpe-v11")
-  .then(function(r){ return r.json(); })
-  .then(function(data){
-    JOBS = data.jobs || [];
-    initDashboard();
-  })
-  .catch(function(err){
-    console.error("Live data fetch failed:", err);
-    JOBS = [];
-    initDashboard();
-  });
 
 </script>
 </body>
