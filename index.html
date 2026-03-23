@@ -140,9 +140,15 @@ body {
 }
 
 .sovereign-banner.watch {
-  background: rgba(192,57,43,0.08);
+  background: rgba(192,122,42,0.1);
+  color: var(--orange);
+  border-color: rgba(192,122,42,0.15);
+}
+
+.sovereign-banner.alert {
+  background: rgba(192,57,43,0.12);
   color: var(--red);
-  border-color: rgba(192,57,43,0.15);
+  border-color: rgba(192,57,43,0.2);
 }
 
 /* Date Toggles */
@@ -1212,15 +1218,25 @@ var tabEl = document.getElementById("tab-"+view); if(tabEl) tabEl.className="act
 (function(){
   var banner = document.getElementById("sovereign-banner");
   if(view !== "ceo" && view !== "gm"){ banner.style.display="none"; return; }
+  var totalVal = JOBS.reduce(function(s,j){return s+(j.value||0);},0);
+  var totalLabor = JOBS.reduce(function(s,j){return s+(j.labor_cost||0);},0);
+  var laborCapPct = totalVal > 0 ? (totalLabor/totalVal*100) : 0;
   var openJobs = JOBS.filter(function(j){return j.status==="open";});
-  var avgM = openJobs.length === 0 ? 0 : openJobs.reduce(function(s,j){return s+j.margin;},0)/openJobs.length;
+  var avgM = openJobs.length===0 ? 0 : openJobs.reduce(function(s,j){return s+j.margin;},0)/openJobs.length;
   var stuck = JOBS.filter(function(j){return j.status==="open"&&daysSince(j.last_updated)>=CONFIG.STALL_DAYS_ORANGE;});
-  if(avgM>=CONFIG.MARGIN_TARGET && stuck.length<=2){
+  if(avgM>=40 && laborCapPct<=15 && stuck.length===0){
     banner.className="sovereign-banner win";
-    banner.innerHTML="&#x2728; The System is Winning. Avg margin "+avgM.toFixed(1)+"% — above target. Enjoy your day.";
-  } else {
+    banner.innerHTML="&#x2728; System Optimal: No Action Required";
+  } else if((avgM>=38&&avgM<40)||(laborCapPct>13&&laborCapPct<=15)||(stuck.length>0&&stuck.length<=2)){
     banner.className="sovereign-banner watch";
-    banner.innerHTML="&#x26A0; Attention Required: "+stuck.length+" stuck jobs | Avg margin "+avgM.toFixed(1)+"% — review Tier 2.";
+    var w=[];
+    if(avgM<40) w.push("Margin "+avgM.toFixed(1)+"% approaching 40% target");
+    if(laborCapPct>13) w.push("Labor cap "+laborCapPct.toFixed(1)+"% approaching 15% limit");
+    if(stuck.length>0) w.push(stuck.length+" jobs stalling");
+    banner.innerHTML="&#x26A0; Watch Required: "+w.join(" | ");
+  } else {
+    banner.className="sovereign-banner alert";
+    banner.innerHTML="&#x26A0; Attention Required: "+stuck.length+" stuck jobs | Avg margin "+avgM.toFixed(1)+"% — review Tier 2";
   }
 })();
 
