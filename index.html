@@ -1061,8 +1061,11 @@ body {
       </div>
       <div class="card no-click">
         <div class="card-label">Labor Cost</div>
-        <div class="card-value" style="font-size:22px">$37,855</div>
-        <div class="card-sub">Paid out</div>
+        <div class="card-sub" style="margin-bottom:2px;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.08em">COMMITTED VS. PAID</div>
+        <div id="cfo-labor-committed" style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:2px">—</div>
+        <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px">Committed (budgeted)</div>
+        <div id="cfo-labor-paid" style="font-size:16px;font-weight:700;color:var(--orange);margin-bottom:2px">—</div>
+        <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace">Paid (out the door)</div>
       </div>
       <div class="card no-click">
         <div class="card-label">Labor Variance</div>
@@ -1704,6 +1707,12 @@ function initCFOChart(){
       cfoMarginInd.innerHTML = '<span style="color:'+dotColor+';font-size:11px;font-weight:600">&#x25CF; '+dotLabel+'</span>';
     }
   }
+
+  // ── CFO Labor Cost card: Committed vs Paid ──
+  var cfoCommitted = document.getElementById('cfo-labor-committed');
+  var cfoPaid = document.getElementById('cfo-labor-paid');
+  if (cfoCommitted) cfoCommitted.textContent = fmt(cfoLaborBudget);
+  if (cfoPaid) cfoPaid.textContent = fmt(cfoLaborCost);
 }
 initCFOChart();
 
