@@ -1197,7 +1197,7 @@ var COL = {
   labor: {label:'Labor', fn: function(j){ return fmt(j.labor_cost); }},
   netProfit: {label:'Net Profit', fn: function(j){ return fmt(j.net_profit); }},
   netProfitColored: {label:'Net Profit', fn: function(j){ return '<strong style="color:'+(j.net_profit>0?'var(--green)':'var(--red)')+'">'+fmt(j.net_profit)+'</strong>'; }},
-  daysIdle: {label:'Days Idle', fn: function(j){ return '<strong style="color:var(--orange)">'+daysSince(j.last_updated)+' days</strong>'; }}
+  daysIdle: {label:'Days Idle', fn: function(j){ return '<strong style="color:var(--orange)">'+daysSince(j.date_updated)+' days</strong>'; }}
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -1450,7 +1450,7 @@ function filterByCrew(val){
   var tbody=document.getElementById("ceo-redflag-body");
   var html="";
   sorted.forEach(function(j){
-    var days=daysSince(j.last_updated);
+    var days=daysSince(j.date_updated);
     var rowClass=j.margin<CONFIG.MARGIN_WARNING?"row-red":j.margin<CONFIG.MARGIN_TARGET?"row-orange":"";
     var sc=stallClass(days);
     html+="<tr class='"+rowClass+"'><td><strong>"+j.name+"</strong></td><td style='color:var(--muted);font-size:11px'>"+j.client+"</td><td>"+fmt(j.value)+"</td><td><span class='badge "+(j.margin>=CONFIG.MARGIN_TARGET?"green":"red")+"'>"+j.margin+"%</span></td><td><span class='stall-pill "+sc+"'>"+days+"d</span></td><td style='font-size:11px;color:var(--red)'>"+( j.margin<CONFIG.MARGIN_TARGET?"Review pricing":"Monitor")+"</td>"+ghlLink(j.id)+"</tr>";
@@ -1498,7 +1498,7 @@ function buildGMTables(){
     marginHtml="<tr><td colspan='7' style='padding:12px;color:var(--green);font-size:12px;text-align:center'>&#x2714; All jobs at or above 40% margin</td></tr>";
   } else {
     below.sort(function(a,b){return a.margin-b.margin;}).forEach(function(j){
-      var days=daysSince(j.last_updated);
+      var days=daysSince(j.date_updated);
       var sc=stallClass(days);
       marginHtml+="<tr class='row-red'><td><strong style='font-size:11px'>"+j.name+"</strong></td><td style='font-size:11px;color:var(--muted)'>"+j.crew+"</td><td>"+fmt(j.value)+"</td><td><span class='badge red'>"+j.margin+"%</span></td><td><span class='stall-pill "+sc+"'>"+days+"d</span></td><td style='font-size:11px;color:var(--red)'>Review material &amp; labor</td>"+ghlLink(j.id)+"</tr>";
     });
