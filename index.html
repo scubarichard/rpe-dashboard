@@ -140,12 +140,6 @@ body {
 }
 
 .sovereign-banner.watch {
-  background: rgba(192,122,42,0.1);
-  color: var(--orange);
-  border-color: rgba(192,122,42,0.15);
-}
-
-.sovereign-banner.alert {
   background: rgba(192,57,43,0.08);
   color: var(--red);
   border-color: rgba(192,57,43,0.15);
@@ -861,10 +855,10 @@ body {
     </div>
     <div class="card no-click">
       <div class="card-label">Labor Cap Tracker</div>
-      <div class="card-value green" id="ceo-laborcap-val">—</div>
-      <div class="card-sub" id="ceo-laborcap-sub">Target: 15% max of revenue</div>
+      <div class="card-value green">66%</div>
+      <div class="card-sub">Target: 15% max of revenue</div>
       <div class="gauge-wrap">
-        <div class="gauge-bar"><div id="ceo-laborcap-fill" class="gauge-fill" style="width:0%;background:var(--green)"></div></div>
+        <div class="gauge-bar"><div class="gauge-fill" style="width:100%;background:var(--green)"></div></div>
         <div class="gauge-labels"><span>0%</span><span>15%</span><span>30%</span></div>
       </div>
     </div>
@@ -1061,11 +1055,8 @@ body {
       </div>
       <div class="card no-click">
         <div class="card-label">Labor Cost</div>
-        <div class="card-sub" style="margin-bottom:2px;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.08em">COMMITTED VS. PAID</div>
-        <div id="cfo-labor-committed" style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:2px">—</div>
-        <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px">Committed (budgeted)</div>
-        <div id="cfo-labor-paid" style="font-size:16px;font-weight:700;color:var(--orange);margin-bottom:2px">—</div>
-        <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace">Paid (out the door)</div>
+        <div class="card-value" style="font-size:22px">$37,855</div>
+        <div class="card-sub">Paid out</div>
       </div>
       <div class="card no-click">
         <div class="card-label">Labor Variance</div>
@@ -1075,8 +1066,8 @@ body {
       <div class="card" onclick="showModal('margin')">
         <div class="card-hint">&#x2197; See by job</div>
         <div class="card-label">Avg Gross Margin</div>
-        <div id="cfo-margin-val" class="card-value green" style="font-size:22px">—</div>
-        <div id="cfo-margin-indicator" class="card-sub">Target: 40%+</div>
+        <div class="card-value green" style="font-size:22px">40.1%</div>
+        <div class="card-sub">Target: 40%+</div>
       </div>
     </div>
   </div>
@@ -1093,7 +1084,6 @@ body {
       <div class="card-sub">Growth multiple</div>
     </div>
   </div>
-  <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;font-style:italic;text-align:center;padding:6px 16px 0">Based on current pipeline net profit. Full LTM calculation available after 12 months of data.</div>
   <div class="ts">Updated daily at 6:10 AM ET</div>
 </div>
 </div>
@@ -1201,7 +1191,7 @@ var COL = {
   labor: {label:'Labor', fn: function(j){ return fmt(j.labor_cost); }},
   netProfit: {label:'Net Profit', fn: function(j){ return fmt(j.net_profit); }},
   netProfitColored: {label:'Net Profit', fn: function(j){ return '<strong style="color:'+(j.net_profit>0?'var(--green)':'var(--red)')+'">'+fmt(j.net_profit)+'</strong>'; }},
-  daysIdle: {label:'Days Idle', fn: function(j){ return '<strong style="color:var(--orange)">'+daysSince(j.date_updated)+' days</strong>'; }}
+  daysIdle: {label:'Days Idle', fn: function(j){ return '<strong style="color:var(--orange)">'+daysSince(j.last_updated)+' days</strong>'; }}
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -1224,24 +1214,13 @@ var tabEl = document.getElementById("tab-"+view); if(tabEl) tabEl.className="act
   if(view !== "ceo" && view !== "gm"){ banner.style.display="none"; return; }
   var openJobs = JOBS.filter(function(j){return j.status==="open";});
   var avgM = openJobs.length === 0 ? 0 : openJobs.reduce(function(s,j){return s+j.margin;},0)/openJobs.length;
-  var totalLabor = JOBS.reduce(function(s,j){return s+(j.labor_cost||0);},0);
-  var totalValue = JOBS.reduce(function(s,j){return s+(j.value||0);},0);
-  var laborCapPct = totalValue === 0 ? 0 : (totalLabor/totalValue)*100;
-  var stuck = JOBS.filter(function(j){return j.status==="open"&&daysSince(j.date_updated)>=CONFIG.STALL_DAYS_ORANGE;});
-  var marginBorderline = avgM >= 38 && avgM < CONFIG.MARGIN_TARGET;
-  var laborBorderline = laborCapPct > 13 && laborCapPct <= CONFIG.LABOR_CAP_PCT;
-  if(avgM>=CONFIG.MARGIN_TARGET && laborCapPct<=CONFIG.LABOR_CAP_PCT && stuck.length===0){
+  var stuck = JOBS.filter(function(j){return j.status==="open"&&daysSince(j.last_updated)>=CONFIG.STALL_DAYS_ORANGE;});
+  if(avgM>=CONFIG.MARGIN_TARGET && stuck.length<=2){
     banner.className="sovereign-banner win";
-    banner.innerHTML="&#x2714; System Optimal: No Action Required";
-  } else if(marginBorderline || laborBorderline){
-    var watchItems = [];
-    if(marginBorderline) watchItems.push("Avg margin "+avgM.toFixed(1)+"% approaching 40% threshold");
-    if(laborBorderline) watchItems.push("Labor cap "+laborCapPct.toFixed(1)+"% approaching 15% threshold");
-    banner.className="sovereign-banner watch";
-    banner.innerHTML="&#x26A0; Watch Required: "+watchItems.join(" | ");
+    banner.innerHTML="&#x2728; The System is Winning. Avg margin "+avgM.toFixed(1)+"% — above target. Enjoy your day.";
   } else {
-    banner.className="sovereign-banner alert";
-    banner.innerHTML="&#x26A0; Attention Required: "+stuck.length+" stuck job"+(stuck.length!==1?"s":"")+" | Avg margin "+avgM.toFixed(1)+"% — review Tier 2";
+    banner.className="sovereign-banner watch";
+    banner.innerHTML="&#x26A0; Attention Required: "+stuck.length+" stuck jobs | Avg margin "+avgM.toFixed(1)+"% — review Tier 2.";
   }
 })();
 
@@ -1420,24 +1399,6 @@ function refreshCEOMetrics() {
     }
   }
 
-  // ── Labor Cap Tracker ──
-  var lcTotalLabor = JOBS.reduce(function(s,j){return s+(j.labor_cost||0);},0);
-  var lcTotalValue = JOBS.reduce(function(s,j){return s+(j.value||0);},0);
-  var lcPct = lcTotalValue === 0 ? 0 : parseFloat((lcTotalLabor/lcTotalValue*100).toFixed(1));
-  var lcEl = document.getElementById('ceo-laborcap-val');
-  var lcSub = document.getElementById('ceo-laborcap-sub');
-  var lcFill = document.getElementById('ceo-laborcap-fill');
-  if (lcEl) {
-    lcEl.textContent = lcPct + '%';
-    var lcColor = lcPct > CONFIG.LABOR_CAP_PCT ? 'red' : lcPct > CONFIG.LABOR_WARNING_PCT ? 'orange' : 'green';
-    lcEl.className = 'card-value ' + lcColor;
-    if (lcSub) lcSub.textContent = fmt(lcTotalLabor) + ' paid / ' + fmt(lcTotalValue) + ' contract — target 15% max';
-    if (lcFill) {
-      lcFill.style.width = Math.min(100, Math.round(lcPct / 30 * 100)) + '%';
-      lcFill.style.background = 'var(--' + lcColor + ')';
-    }
-  }
-
   // ── Pending card ──
   var pendingVal = document.getElementById('ceo-pending-val');
   var pendingSub = document.getElementById('ceo-pending-sub');
@@ -1472,7 +1433,7 @@ function filterByCrew(val){
   var tbody=document.getElementById("ceo-redflag-body");
   var html="";
   sorted.forEach(function(j){
-    var days=daysSince(j.date_updated);
+    var days=daysSince(j.last_updated);
     var rowClass=j.margin<CONFIG.MARGIN_WARNING?"row-red":j.margin<CONFIG.MARGIN_TARGET?"row-orange":"";
     var sc=stallClass(days);
     html+="<tr class='"+rowClass+"'><td><strong>"+j.name+"</strong></td><td style='color:var(--muted);font-size:11px'>"+j.client+"</td><td>"+fmt(j.value)+"</td><td><span class='badge "+(j.margin>=CONFIG.MARGIN_TARGET?"green":"red")+"'>"+j.margin+"%</span></td><td><span class='stall-pill "+sc+"'>"+days+"d</span></td><td style='font-size:11px;color:var(--red)'>"+( j.margin<CONFIG.MARGIN_TARGET?"Review pricing":"Monitor")+"</td>"+ghlLink(j.id)+"</tr>";
@@ -1520,7 +1481,7 @@ function buildGMTables(){
     marginHtml="<tr><td colspan='7' style='padding:12px;color:var(--green);font-size:12px;text-align:center'>&#x2714; All jobs at or above 40% margin</td></tr>";
   } else {
     below.sort(function(a,b){return a.margin-b.margin;}).forEach(function(j){
-      var days=daysSince(j.date_updated);
+      var days=daysSince(j.last_updated);
       var sc=stallClass(days);
       marginHtml+="<tr class='row-red'><td><strong style='font-size:11px'>"+j.name+"</strong></td><td style='font-size:11px;color:var(--muted)'>"+j.crew+"</td><td>"+fmt(j.value)+"</td><td><span class='badge red'>"+j.margin+"%</span></td><td><span class='stall-pill "+sc+"'>"+days+"d</span></td><td style='font-size:11px;color:var(--red)'>Review material &amp; labor</td>"+ghlLink(j.id)+"</tr>";
     });
@@ -1684,36 +1645,11 @@ function initCFOChart(){
   if(!canvas) return;
   var existingCfo = Chart.getChart(canvas);
   if(existingCfo) existingCfo.destroy();
-  var cfoLaborBudget = JOBS.reduce(function(s,j){return s+(j.labor_budget||0);},0);
-  var cfoLaborCost = JOBS.reduce(function(s,j){return s+(j.labor_cost||0);},0);
-  var cfoVariance = cfoLaborBudget - cfoLaborCost;
   new Chart(canvas,{
     type:"bar",
-    data:{labels:["Labor Budget","Labor Cost","Variance"],datasets:[{data:[cfoLaborBudget,cfoLaborCost,cfoVariance],backgroundColor:[gold,orange,green],borderRadius:6}]},
+    data:{labels:["Labor Budget","Labor Cost","Variance"],datasets:[{data:[57258,37855,19403],backgroundColor:[gold,orange,green],borderRadius:6}]},
     options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return "$"+Math.round(v/1000)+"K";}},grid:{color:"#f0f0f0"}},x:{grid:{display:false}}}}
   });
-
-  // ── CFO Avg Gross Margin indicator ──
-  var cfoMarginEl = document.getElementById('cfo-margin-val');
-  var cfoMarginInd = document.getElementById('cfo-margin-indicator');
-  if (cfoMarginEl) {
-    var cfoAvgM = JOBS.length === 0 ? 0 : JOBS.reduce(function(s,j){return s+j.margin;},0)/JOBS.length;
-    var onTarget = cfoAvgM >= CONFIG.MARGIN_TARGET;
-    cfoMarginEl.textContent = cfoAvgM.toFixed(1) + '%';
-    cfoMarginEl.className = 'card-value ' + (onTarget ? 'green' : 'red') + '';
-    cfoMarginEl.style.fontSize = '22px';
-    if (cfoMarginInd) {
-      var dotColor = onTarget ? 'var(--green)' : 'var(--red)';
-      var dotLabel = onTarget ? '&#x25B2; On Target' : '&#x25BC; Below Target';
-      cfoMarginInd.innerHTML = '<span style="color:'+dotColor+';font-size:11px;font-weight:600">&#x25CF; '+dotLabel+'</span>';
-    }
-  }
-
-  // ── CFO Labor Cost card: Committed vs Paid ──
-  var cfoCommitted = document.getElementById('cfo-labor-committed');
-  var cfoPaid = document.getElementById('cfo-labor-paid');
-  if (cfoCommitted) cfoCommitted.textContent = fmt(cfoLaborBudget);
-  if (cfoPaid) cfoPaid.textContent = fmt(cfoLaborCost);
 }
 initCFOChart();
 
