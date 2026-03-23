@@ -861,10 +861,10 @@ body {
     </div>
     <div class="card no-click">
       <div class="card-label">Labor Cap Tracker</div>
-      <div class="card-value green">66%</div>
-      <div class="card-sub">Target: 15% max of revenue</div>
+      <div class="card-value" id="ceo-laborcap-val">—</div>
+      <div class="card-sub" id="ceo-laborcap-sub">Target: 15% max of revenue</div>
       <div class="gauge-wrap">
-        <div class="gauge-bar"><div class="gauge-fill" style="width:100%;background:var(--green)"></div></div>
+        <div class="gauge-bar"><div id="ceo-laborcap-fill" class="gauge-fill" style="width:0%;background:var(--green)"></div></div>
         <div class="gauge-labels"><span>0%</span><span>15%</span><span>30%</span></div>
       </div>
     </div>
@@ -1412,6 +1412,26 @@ function refreshCEOMetrics() {
       var rpePct = Math.min(100, Math.round(rpeVal / CONFIG.RPE_GAUGE_MAX * 100));
       gaugeFill.style.width = rpePct + '%';
       gaugeFill.style.background = rpeVal >= CONFIG.RPE_TARGET ? 'var(--green)' : rpeVal >= CONFIG.RPE_WARNING ? 'var(--orange)' : 'var(--red)';
+    }
+  }
+
+  // ── Labor Cap Tracker ──
+  var totalVal2 = JOBS.reduce(function(s,j){return s+(j.value||0);},0);
+  var totalLabor2 = JOBS.reduce(function(s,j){return s+(j.labor_cost||0);},0);
+  var ceoLaborPct = totalVal2>0 ? (totalLabor2/totalVal2*100) : 0;
+  var lcPctRounded = ceoLaborPct.toFixed(1);
+  var lcColor = ceoLaborPct>15?"var(--red)":ceoLaborPct>13?"var(--orange)":"var(--green)";
+  var lcClass = ceoLaborPct>15?"red":ceoLaborPct>13?"orange":"green";
+  var lcEl = document.getElementById('ceo-laborcap-val');
+  var lcSub = document.getElementById('ceo-laborcap-sub');
+  var lcFill = document.getElementById('ceo-laborcap-fill');
+  if (lcEl) {
+    lcEl.textContent = lcPctRounded + '%';
+    lcEl.className = 'card-value ' + lcClass;
+    if (lcSub) lcSub.textContent = fmt(totalLabor2) + ' paid / ' + fmt(totalVal2) + ' contract — target 15% max';
+    if (lcFill) {
+      lcFill.style.width = Math.min(ceoLaborPct/30*100, 100) + '%';
+      lcFill.style.background = lcColor;
     }
   }
 
