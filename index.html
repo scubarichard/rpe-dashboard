@@ -807,13 +807,13 @@ body {
     <div class="card" onclick="showModal('pipeline')">
       <div class="card-hint">&#x2197; Click to see all jobs</div>
       <div class="card-label">Total Pipeline Value</div>
-      <div class="card-value gold">$154,500</div>
+      <div class="card-value gold">$0</div>
       <div class="card-sub">All active jobs combined</div>
     </div>
     <div class="card" onclick="showModal('netprofit')">
       <div class="card-hint">&#x2197; Click for profit breakdown</div>
       <div class="card-label">Net Profit</div>
-      <div class="card-value green">$25,475</div>
+      <div class="card-value green">$0</div>
       <div class="card-sub">After all labor costs</div>
     </div>
   </div>
@@ -852,10 +852,10 @@ body {
     <div class="card" onclick="showModal('margin')">
       <div class="card-hint">&#x2197; Click to see margins by job</div>
       <div class="card-label">Avg Gross Margin</div>
-      <div class="card-value green">40.1%</div>
+      <div class="card-value green">0.0%</div>
       <div class="card-sub">Target: 40% minimum</div>
       <div class="gauge-wrap">
-        <div class="gauge-bar"><div class="gauge-fill" style="width:67%;background:var(--green)"></div></div>
+        <div class="gauge-bar"><div class="gauge-fill" style="width:0%;background:var(--green)"></div></div>
         <div class="gauge-labels"><span>0%</span><span>40%</span><span>60%</span></div>
       </div>
     </div>
@@ -884,13 +884,13 @@ body {
     <div class="card" onclick="showModal('open')">
       <div class="card-hint">&#x2197; See all pipeline jobs</div>
       <div class="card-label">Pending (Pipeline $)</div>
-      <div class="card-value gold" id="ceo-pending-val">$122,900</div>
+      <div class="card-value gold" id="ceo-pending-val">$0</div>
       <div class="card-sub" id="ceo-pending-sub">9 active jobs</div>
     </div>
     <div class="card" onclick="showModal('won')">
       <div class="card-hint">&#x2197; See completed jobs</div>
       <div class="card-label">Completed MTD</div>
-      <div class="card-value green">1</div>
+      <div class="card-value green">0</div>
       <div class="card-sub">Jobs through the Engine</div>
     </div>
     <div class="card placeholder no-click">
@@ -1037,13 +1037,13 @@ body {
     <div class="card" onclick="showModal('pipeline')">
       <div class="card-hint">&#x2197; Click to see all jobs</div>
       <div class="card-label">Total Pipeline Value</div>
-      <div class="card-value gold">$154,500</div>
+      <div class="card-value gold">$0</div>
       <div class="card-sub">Active revenue potential</div>
     </div>
     <div class="card" onclick="showModal('netprofit')">
       <div class="card-hint">&#x2197; Click for profit breakdown</div>
       <div class="card-label">Net Profit</div>
-      <div class="card-value green">$25,475</div>
+      <div class="card-value green">$0</div>
       <div class="card-sub">After all labor costs</div>
     </div>
   </div>
@@ -1056,18 +1056,18 @@ body {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="card no-click">
         <div class="card-label">Labor Budget</div>
-        <div class="card-value" style="font-size:22px">$57,258</div>
-        <div class="card-sub">Committed</div>
+        <div class="card-value" style="font-size:22px">$0</div>
+        <div class="card-sub">—</div>
       </div>
       <div class="card no-click">
         <div class="card-label">Labor Cost</div>
-        <div class="card-value" style="font-size:22px">$37,855</div>
-        <div class="card-sub">Paid out</div>
+        <div class="card-value" style="font-size:22px">$0</div>
+        <div class="card-sub">—</div>
       </div>
       <div class="card no-click">
         <div class="card-label">Labor Variance</div>
-        <div class="card-value green" style="font-size:22px">$19,403</div>
-        <div class="card-sub">Under budget</div>
+        <div class="card-value green" style="font-size:22px">$0</div>
+        <div class="card-sub">—</div>
       </div>
       <div class="card" onclick="showModal('margin')">
         <div class="card-hint">&#x2197; See by job</div>
@@ -1081,12 +1081,12 @@ body {
   <div class="grid grid-2">
     <div class="card no-click">
       <div class="card-label">Enterprise Value 3x</div>
-      <div class="card-value gold">$76,425</div>
+      <div class="card-value gold">$0</div>
       <div class="card-sub">Conservative multiple</div>
     </div>
     <div class="card no-click">
       <div class="card-label">Enterprise Value 5x</div>
-      <div class="card-value gold">$127,375</div>
+      <div class="card-value gold">$0</div>
       <div class="card-sub">Growth multiple</div>
     </div>
     <p style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;font-style:italic;text-align:center;padding:6px 0 0;grid-column:1/-1">Based on current pipeline snapshot. Full LTM calculation available after 12 months of data.</p>
@@ -1116,22 +1116,22 @@ try {
 // ═══════════════════════════════════════════════════════════
 
 var CONFIG = {
-  API_URL: 'https://n8n.dakona.net/webhook/rpe-v11',
-  GHL_OPP_BASE: 'https://app.gohighlevel.com/v2/location/OkpQxkeSnF4wqI31WmUg/opportunities/list/',
+  API_URL: '{{API_URL}}',
+  GHL_OPP_BASE: '{{GHL_OPP_BASE}}',
   MS_PER_DAY: 86400000,
-  MARGIN_TARGET: 40,
-  MARGIN_WARNING: 35,
-  LABOR_CAP_PCT: 15,
-  LABOR_WARNING_PCT: 12,
+  MARGIN_TARGET: {{MARGIN_TARGET}},
+  MARGIN_WARNING: {{MARGIN_WARNING}},
+  LABOR_CAP_PCT: {{LABOR_CAP_PCT}},
+  LABOR_WARNING_PCT: {{LABOR_WARNING_PCT}},
   STALL_DAYS_RED: 6,
   STALL_DAYS_ORANGE: 3,
   RPE_TARGET: 40000,
   RPE_WARNING: 25000,
   RPE_GAUGE_MAX: 80000,
-  HEADCOUNT: 2,
+  HEADCOUNT: {{HEADCOUNT}},
   RED_FLAG_COUNT: 3,
   VELOCITY_DAYS: { today: 14, week: 28, ytd: 90 },
-  CREW_NAMES: { 'Crew A': 'Marcus', 'Crew B': 'Derek', 'Crew C': 'Steve' }
+  CREW_NAMES: {{CREW_NAMES}}
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -1671,7 +1671,7 @@ if(view==="gm"){
       labels:["LVP","Hardwood","Carpet","Tile"],
       datasets:[{
         label:"Avg Margin %",
-        data:[44,43,35,38],
+        data:[0,0,0,0],
         backgroundColor:[green,gold,red,orange],
         borderRadius:6
       }]
@@ -1695,7 +1695,7 @@ function initCFOChart(){
   if(existingCfo) existingCfo.destroy();
   new Chart(canvas,{
     type:"bar",
-    data:{labels:["Labor Budget","Labor Cost","Variance"],datasets:[{data:[57258,37855,19403],backgroundColor:[gold,orange,green],borderRadius:6}]},
+    data:{labels:["Labor Budget","Labor Cost","Variance"],datasets:[{data:[0,0,0],backgroundColor:[gold,orange,green],borderRadius:6}]},
     options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return "$"+Math.round(v/1000)+"K";}},grid:{color:"#f0f0f0"}},x:{grid:{display:false}}}}
   });
 
@@ -1792,20 +1792,7 @@ function showModal(type){
 // CHANGE ORDERS
 // ═══════════════════════════════════════════════════════════
 
-var CHANGE_ORDERS = [
-  {
-    task_id: "86e0ccx58",
-    job_name: "Wilkins Game Room - Subfloor Repair",
-    opportunity_id: "psPkH0gBqYdZ0ZJ3R5lR",
-    contract_value: 1200,
-    status: "complete",
-    crew_assigned: "",
-    description: "Subfloor repair required before LVP install",
-    date_created: "2026-03-15",
-    date_updated: "2026-03-15",
-    url: "https://app.clickup.com/t/86e0ccx58"
-  }
-];
+var CHANGE_ORDERS = [];
 
 (function buildCOTable(){
   var tbody = document.getElementById("gm-co-body");
